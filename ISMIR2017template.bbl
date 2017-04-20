@@ -1,0 +1,113 @@
+\begin{thebibliography}{10}
+
+\bibitem{berndt1994using}
+Donald~J Berndt and James Clifford.
+\newblock {Using Dynamic Time Warping to Find Patterns in Time Series}.
+\newblock In {\em KDD workshop}, volume~10, pages 359--370. Seattle, WA, 1994.
+
+\bibitem{bertin2011large}
+Thierry Bertin-Mahieux and Daniel P.~W. Ellis.
+\newblock Large-scale cover song recognition using hashed chroma landmarks.
+\newblock In {\em Proceedings of the IEEE Workshop on Applications of Signal
+  Processing to Audio and Acoustics}, pages 117--20, 2011.
+
+\bibitem{breiman2001random}
+Leo Breiman.
+\newblock Random forests.
+\newblock {\em Machine learning}, 45(1):5--32, 2001.
+
+\bibitem{SonicVisualiser}
+C.~Cannam, C.~Landone, and M.~Sandler.
+\newblock Sonic visualiser: An open source application for viewing, analysing,
+  and annotating music audio files.
+\newblock In {\em Proceedings of the ACM Multimedia 2010 International
+  Conference}, pages 1467--1468, Firenze, Italy, October 2010.
+
+\bibitem{cano2005review}
+Pedro Cano, Eloi Batlle, Ton Kalker, and Jaap Haitsma.
+\newblock A review of audio fingerprinting.
+\newblock {\em Journal of VLSI signal processing systems for signal, image and
+  video technology}, 41(3):271--284, 2005.
+
+\bibitem{caseyRemix}
+M.~Casey and M.~Slaney.
+\newblock Fast recognition of remixed music audio.
+\newblock In {\em Acoustics, Speech and Signal Processing, 2007. ICASSP 2007.
+  IEEE International Conference on}, volume~4, pages 1425--1428, 2007.
+
+\bibitem{dittmar2012audio}
+Christian Dittmar, Kay~F Hildebrand, Daniel Gaertner, Manuel Winges, Florian
+  M{\"u}ller, and Patrick Aichroth.
+\newblock Audio forensics meets music information retrieval - {A} toolbox for
+  inspection of music plagiarism.
+\newblock In {\em Proceedings of the 20th European Signal Processing Conference
+  (EUSIPCO)}, pages 1249--1253. IEEE, 2012.
+
+\bibitem{Ellis2007Cover}
+D.~P.~W. Ellis and G.~E. Poliner.
+\newblock Identifying `cover songs' with chroma features and dynamic
+  programming beat tracking.
+\newblock In {\em Acoustics, Speech and Signal Processing, 2007. ICASSP 2007.
+  IEEE International Conference on}, volume~4, pages IV--1429--IV--1432, 2007.
+
+\bibitem{ellisfinger}
+Dan Ellis.
+\newblock Robust landmark-based audio fingerprinting.
+\newblock \url{http://labrosa.ee.columbia.edu/matlab/fingerprint/}.
+\newblock Accessed: 2015-12-04.
+
+\bibitem{hall2009weka}
+Mark Hall, Eibe Frank, Geoffrey Holmes, Bernhard Pfahringer, Peter Reutemann,
+  and Ian~H Witten.
+\newblock {The WEKA data mining software: an update}.
+\newblock {\em ACM SIGKDD explorations newsletter}, 11(1):10--18, 2009.
+
+\bibitem{koren2009matrix}
+Yehuda Koren, Robert Bell, and Chris Volinsky.
+\newblock Matrix factorization techniques for recommender systems.
+\newblock {\em Computer}, 42(8), 2009.
+
+\bibitem{lee1999learning}
+Daniel~D Lee and H~Sebastian Seung.
+\newblock Learning the parts of objects by non-negative matrix factorization.
+\newblock {\em Nature}, 401(6755):788--791, 1999.
+
+\bibitem{serracover}
+Joan Serr{\`a}, Emilia G{\'o}mez, and Perfecto Herrera.
+\newblock Audio cover song identification and similarity: Background,
+  approaches, evaluation, and beyond.
+\newblock In {\em Advances in Music Information Retrieval}, volume 274 of {\em
+  Studies in Computational Intelligence}, pages 307--332. Springer Berlin
+  Heidelberg, 2010.
+
+\bibitem{smaragdis2003non}
+Paris Smaragdis and Judith~C Brown.
+\newblock Non-negative matrix factorization for polyphonic music transcription.
+\newblock In {\em Applications of Signal Processing to Audio and Acoustics,
+  2003 IEEE Workshop on.}, pages 177--180. IEEE, 2003.
+
+\bibitem{van2011automatic}
+Jan Van~Balen.
+\newblock Automatic recognition of samples in musical audio.
+\newblock In {\em Master’s thesis, Universitat Pompeu Fabra}, 2011.
+
+\bibitem{virtanen2007monaural}
+Tuomas Virtanen.
+\newblock Monaural sound source separation by nonnegative matrix factorization
+  with temporal continuity and sparseness criteria.
+\newblock {\em IEEE transactions on audio, speech, and language processing},
+  15(3):1066--1074, 2007.
+
+\bibitem{wang2003industrial}
+Avery Wang.
+\newblock An industrial-strength audio search algorithm.
+\newblock In {\em Proceedings of the 4th International Conference on Music
+  Information Retrieval}, 2003.
+
+\bibitem{wu2015drum}
+Chih-Wei Wu and Alexander Lerch.
+\newblock Drum transcription using partially fixed non-negative matrix
+  factorization with template adaptation.
+\newblock In {\em ISMIR}, pages 257--263, 2015.
+
+\end{thebibliography}
