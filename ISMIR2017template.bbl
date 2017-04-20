@@ -56,12 +56,6 @@ Dan Ellis.
 \newblock \url{http://labrosa.ee.columbia.edu/matlab/fingerprint/}.
 \newblock Accessed: 2015-12-04.
 
-\bibitem{hall2009weka}
-Mark Hall, Eibe Frank, Geoffrey Holmes, Bernhard Pfahringer, Peter Reutemann,
-  and Ian~H Witten.
-\newblock {The WEKA data mining software: an update}.
-\newblock {\em ACM SIGKDD explorations newsletter}, 11(1):10--18, 2009.
-
 \bibitem{koren2009matrix}
 Yehuda Koren, Robert Bell, and Chris Volinsky.
 \newblock Matrix factorization techniques for recommender systems.

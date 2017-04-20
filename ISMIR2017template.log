@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.30)  19 APR 2017 21:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.30)  20 APR 2017 09:36
 entering extended mode
 **./ISMIR2017template.tex
 (ISMIR2017template.tex
@@ -239,58 +239,119 @@ LaTeX Warning: No positions in optional float specifier.
                Default added (so using `tbp') on input line 96.
 
 
-Overfull \hbox (11.98747pt too wide) in paragraph at lines 100--106
+Overfull \hbox (77.41595pt too wide) in paragraph at lines 100--106
  [][] 
  []
+
+
+LaTeX Warning: Citation `cano2005review' on page 1 undefined on input line 110.
+
+
+LaTeX Warning: Citation `van2011automatic' on page 1 undefined on input line 111.
+
+
+LaTeX Warning: Citation `wang2003industrial' on page 1 undefined on input line 111.
+
+
+LaTeX Warning: Citation `ellisfinger' on page 1 undefined on input line 111.
+
+
+LaTeX Warning: Citation `Ellis2007Cover' on page 1 undefined on input line 121.
+
+
+LaTeX Warning: Citation `serracover' on page 1 undefined on input line 121.
+
+
+LaTeX Warning: Citation `bertin2011large' on page 1 undefined on input line 121.
+
+
+LaTeX Warning: Citation `berndt1994using' on page 1 undefined on input line 122.
+
+
+LaTeX Warning: Citation `caseyRemix' on page 1 undefined on input line 127.
 
 [1{C:/Users/SiddGururani/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}
 
 
 
  <./figs/cc_by.pdf>]
+
+LaTeX Warning: Citation `dittmar2012audio' on page 2 undefined on input line 131.
+
 <block_diagram.png, id=15, 722.7pt x 542.025pt>
 File: block_diagram.png Graphic file (type png)
  <use block_diagram.png>
 Package pdftex.def Info: block_diagram.png used on input line 141.
 (pdftex.def)             Requested size: 233.31259pt x 174.9816pt.
- <corr.png, id=17, 230.0595pt x 304.7385pt>
-File: corr.png Graphic file (type png)
 
-<use corr.png>
+
+LaTeX Warning: Citation `virtanen2007monaural' on page 2 undefined on input line 146.
+
+
+LaTeX Warning: Reference `fig_block' on page 2 undefined on input line 146.
+
+
+LaTeX Warning: Citation `koren2009matrix' on page 2 undefined on input line 150.
+
+
+LaTeX Warning: Citation `lee1999learning' on page 2 undefined on input line 150.
+
+
+LaTeX Warning: Citation `smaragdis2003non' on page 2 undefined on input line 152.
+
+
+LaTeX Warning: Citation `wu2015drum' on page 2 undefined on input line 155.
+
+
+LaTeX Warning: Reference `fig1' on page 2 undefined on input line 155.
+
+<corr.png, id=17, 230.0595pt x 304.7385pt>
+File: corr.png Graphic file (type png)
+ <use corr.png>
 Package pdftex.def Info: corr.png used on input line 159.
 (pdftex.def)             Requested size: 233.31259pt x 309.06218pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[2 <./block_diagram.png>] <distmat.png, id=30, 556.479pt x 222.23026pt>
+
+Underfull \vbox (badness 1454) has occurred while \output is active []
+
+ [2 <./block_diagram.png>]
+<distmat.png, id=29, 556.479pt x 222.23026pt>
 File: distmat.png Graphic file (type png)
  <use distmat.png>
 Package pdftex.def Info: distmat.png used on input line 175.
 (pdftex.def)             Requested size: 233.31259pt x 93.1733pt.
+ [3 <./corr.png> <./distmat.png (PNG copy)>]
 
+LaTeX Warning: Reference `fig3' on page 4 undefined on input line 204.
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-<DTWcost.png, id=31, 445.665pt x 345.08925pt>
+<DTWcost.png, id=34, 445.665pt x 345.08925pt>
 File: DTWcost.png Graphic file (type png)
  <use DTWcost.png>
-Package pdftex.def Info: DTWcost.png used on input line 202.
+Package pdftex.def Info: DTWcost.png used on input line 208.
 (pdftex.def)             Requested size: 233.31259pt x 180.65854pt.
 
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+LaTeX Warning: Reference `fig4' on page 4 undefined on input line 220.
 
-[3 <./corr.png> <./distmat.png (PNG copy)>] <DTWpath.png, id=35, 445.665pt x 345.08925pt>
+<DTWpath.png, id=35, 445.665pt x 345.08925pt>
 File: DTWpath.png Graphic file (type png)
  <use DTWpath.png>
-Package pdftex.def Info: DTWpath.png used on input line 216.
+Package pdftex.def Info: DTWpath.png used on input line 224.
 (pdftex.def)             Requested size: 233.31259pt x 180.65854pt.
  [4 <./DTWcost.png (PNG copy)> <./DTWpath.png (PNG copy)>]
 
-LaTeX Warning: Reference `def' on page 5 undefined on input line 276.
+LaTeX Warning: Citation `breiman2001random' on page 5 undefined on input line 257.
 
-(ISMIR2017template.bbl
+
+LaTeX Warning: Citation `SonicVisualiser' on page 5 undefined on input line 278.
+
+
+LaTeX Warning: Reference `def' on page 5 undefined on input line 286.
+
+[5] (ISMIR2017template.bbl
 Underfull \hbox (badness 1460) in paragraph at lines 15--18
 []\OT1/ptm/m/n/10 Leo Breiman.  Ran-dom forests.  \OT1/ptm/m/it/10 Ma-chine learn-ing\OT1/ptm/m/n/10 ,
  []
@@ -305,25 +366,25 @@ Underfull \hbox (badness 1635) in paragraph at lines 60--64
 []\OT1/ptm/m/n/10 Mark Hall, Eibe Frank, Ge-of-frey Holmes, Bern-
  []
 
-[5]
 Missing character: There is no â in font ptmri7t!
 Missing character: There is no € in font ptmri7t!
 Missing character: There is no ™ in font ptmri7t!
-) [6
-
-] (ISMIR2017template.aux)
+) [6] (ISMIR2017template.aux)
 
 LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
  2582 strings out of 493333
  34024 string characters out of 3140897
- 104285 words of memory out of 3000000
+ 104118 words of memory out of 3000000
  6042 multiletter control sequences out of 15000+200000
  27634 words of font info for 65 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 40i,15n,25p,1237b,374s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 40i,15n,25p,1240b,374s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX/fonts/enc/dvips/base/8r.enc}<D:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pf
 b><D:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><D:/Program Files/MiKTeX/fonts/type1/public/amsfonts
 /cm/cmr10.pfb><D:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><D:/Program Files/MiKTeX/fonts/type1/publ
@@ -331,7 +392,7 @@ ic/amsfonts/cm/cmsy10.pfb><D:/Program Files/MiKTeX/fonts/type1/public/amsfonts/c
 ts/type1/public/amsfonts/cm/cmsy8.pfb><D:/Program Files/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><D:/Progra
 m Files/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><D:/Program Files/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><D:/Program 
 Files/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><D:/Program Files/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on ISMIR2017template.pdf (6 pages, 345301 bytes).
+Output written on ISMIR2017template.pdf (6 pages, 348725 bytes).
 PDF statistics:
  83 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

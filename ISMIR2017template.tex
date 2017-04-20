@@ -71,7 +71,7 @@
 \maketitle
 %
 \begin{abstract}
-The term `sampling' refers to the usage of snippets or loops from existing songs or libraries in new music productions or mashups. Being able to detect samples in songs is useful in tracing and studying artist influences across generations of musicians. In this paper, an algorithm that utilizes Non-negative Matrix Factorization (NMF) and Dynamic Time Warping (DTW) is proposed to detect the instances of a given audio sample in a song. NMF is used to learn the spectral templates and their activations from the sample. Factorizing the query song with the sample templates along with randomly initialized templates allows to align the sample activations with the query activations using DTW. Features derived from the DTW paths are used to train a random forest classifier to detect the presence of the sample. The algorithm is able to detect samples that are pitch-shifted and/or time-stretched and is evaluated against a dataset of real-world sample and song pairs which has been made available. 
+The term `sampling' refers to the usage of snippets or loops from existing songs or sample libraries in new songs, mashups or other music productions. Being able to detect samples in songs is useful in tracing and studying artist influences geographically and across time. We present a method based on Dynamic Time Warping (DTW) and Non-negative Matrix Factorization (NMF) for the automatic detection of a sample in a set of query songs. The method comprises of two processing steps: first, the DTW alignment path between activations of the query song and reference sample is computed. Second, features are extracted from this path and used to train a random forest classifier to detect the presence of the sample. The method is able to detect samples that are pitch-shifted and/or time-stretched. We evaluate this method for sample detection against a new publicly available dataset of real-world sample and song pairs.
 \end{abstract}
 %
 \section{Introduction}
@@ -281,13 +281,19 @@ These annotations including the song names and URLs for obtaining the audio have
 
 \subsection{Experiments}
 
-In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample.
+In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
 
 To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{def} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
 
 In the training set, for each sample and song pair, all unique start points after feature extraction were labeled as `0' or `1' based on whether a sample is present. In order to achieve this, the ground truth of the time instants of where samples were present are used. Any start point within a 1 second window of the ground truth annotation is labeled `1'. In some instances there were multiple start points within the 1 second tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs.
 
 10-fold cross-validation was used with this data to obtain the training accuracy.
+
+For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. If multiple positive detections are obtained in the tolerance window, all but the closest detection are classified as false positives. The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. We report the precision, recall and f-measure for the sample location detection. We refer to these as micro-accuracy measures.
+
+In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures.
+
+\section{Results}
 
 % \section{Discussion}
 % \label{dis}
@@ -320,6 +326,7 @@ In the training set, for each sample and song pair, all unique start points afte
 In this work, an algorithm for sample detection based on NMF and DTW, which is robust against pitch-shifting and time-stretching is presented. A framework for research in sample detection is described and a dataset a specifically created for this task. The paper describes a promising algorithm that uses NMF and DTW to solve the problem which is currently evaluated against the given dataset. The results from the evaluation are encouraging and approaches to further improve the algorithm are proposed by way of normalization and pre-processing.
 
 % For bibtex users:
+\newpage
 \bibliography{ISMIRtemplate}
 
 % For non bibtex users:
