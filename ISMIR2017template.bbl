@@ -66,6 +66,13 @@ Daniel~D Lee and H~Sebastian Seung.
 \newblock Learning the parts of objects by non-negative matrix factorization.
 \newblock {\em Nature}, 401(6755):788--791, 1999.
 
+\bibitem{lopez2013insight}
+Victoria L{\'o}pez, Alberto Fern{\'a}ndez, Salvador Garc{\'\i}a, Vasile Palade,
+  and Francisco Herrera.
+\newblock An insight into classification with imbalanced data: Empirical
+  results and current trends on using data intrinsic characteristics.
+\newblock {\em Information Sciences}, 250:113--141, 2013.
+
 \bibitem{serracover}
 Joan Serr{\`a}, Emilia G{\'o}mez, and Perfecto Herrera.
 \newblock Audio cover song identification and similarity: Background,
