@@ -78,63 +78,63 @@ The term `sampling' refers to the usage of snippets or loops from existing songs
 \section{Introduction}
 \label{sec:intro}
 
-Sampling, in the context of music composition and production, is the concept of reusing digital recordings in new compositions in a way that it fits in the musical context. In digital sampling, an artist records a segment of a song or sound that they wish to sample, may or may not modify it, and then reuse it (and possibly other recordings) by incorporating it into a new composition. Sampling of audio has become popular in mainstream pop, hip-hop and rap music. 
+Sampling is, in the context of music composition and production, the concept of reusing pre-existing digital recordings in new compositions in a way that it fits in the musical context. In digital sampling, an artist records a segment of a song or sound that they wish to sample, may or may not modify it, and then reuses it (and possibly other samples) by incorporating it into a new composition \cite{katz_capturing_2004}. Sampling of audio has become popular in mainstream pop, hip-hop, and rap music. 
 
 A sample detection system enables a musicological study of the influence of older artists over newer generation artists by observing sampling patterns over the years and geographically.
 %It has also gained attention from legal issues in the practice of digital sampling. Section \ref{Motivation} of this paper will discuss the motivation behind research in sample detection. 
-
+%
 Another possible use case of a sample detection system could be to detect plagiarism or copyright infringement. Sampling is legally controversial and determining fair use is largely left to the courthouse. A system that gives an objective measure of the likelihood of a sample being present in an audio file could add weight to either party's argument in a lawsuit.
 
-The algorithm discussed in this paper focuses on solving the problem of detecting the presence of a given sample in a set of songs and also the location of where the sample is most likely present.
+The algorithm discussed in this paper focuses on solving the problem of detecting the presence of a given sample in a set of songs as well as its time location in the song.
 
 % Although sampling is popular as a musical tool, it has not been subject to much research in the domain of Music Information Retrieval. A few works focusing on sampling shall be discussed in Section \ref{related}. The sections that follow will focus mainly on the work that has been done in this paper, discussing the algorithm, the evaluation, and an outline for future work possible.
 %
 \section{Related Work}
 \label{related}
-
-In academia, only a few publications were found that specifically tackled the problem of sample detection. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. The table \ref{comparison} compares a few properties of audio fingerprinting, cover song detection and sample detection systems.
+The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} gives an overview of differences between audio fingerprinting, cover song detection, and sample detection systems. {\color{red}Would it look better to flip the table and put it into one column?}
 
 \begin{table*}[!ht]
 \centering
-\caption{Comparison Table of Related Work}
 \label{comparison}
 \begin{tabular}{|c|c|c|c|}
 \hline
-\multicolumn{1}{|l|}{}                                                      & \textbf{Audio Fingerprinting}                                                                      & \textbf{Cover Song Detection}                                                                                                   & \textbf{Sample Detection}                                                                                                        \\ \hline
-\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio is detected, with \\ some degradation possible\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  with or without effects \end{tabular}                  \\ \hline
-\begin{tabular}[c]{@{}c@{}}Addition of extra \\ audio tracks\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Query audio isn't mixed \\ with other audio tracks\end{tabular}         & \begin{tabular}[c]{@{}c@{}}Cover is a linear performance\\  of the reference with possible\\ artistic or instrumental changes\end{tabular} & \begin{tabular}[c]{@{}c@{}}Sample could be present in a \\ mixture of several other \\ audio tracks in the reference\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{}        & \textbf{Audio Fingerprinting} & \textbf{Cover Song Detection} & \textbf{Sample Detection}\\ \hline
+\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio is detected, with \\ some degradation possible\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  but possibly modified \end{tabular}                  \\ \hline
+\begin{tabular}[c]{@{}c@{}}Addition of extra \\ audio tracks\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Only query audio is \\ present\end{tabular}         & \begin{tabular}[c]{@{}c@{}}Cover contains modifications \\  (structural, instrumental, \ldots) \end{tabular} & \begin{tabular}[c]{@{}c@{}}Sample is present in a mixture \\ of many other audio tracks \end{tabular} \\ \hline
 \end{tabular}
+\caption{Comparison Table of Related Work}
 \end{table*}
 
 \subsection{Audio Fingerprinting}
 
-Audio fingerprinting refers to the method of extracting content-based signatures from audio \cite{cano2005review}. It is most commonly used in content-based music retrieval systems, like Shazam\footnote{https://www.shazam.com/}.
-Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}. He used a popular fingerprinting by Wang \cite{wang2003industrial}, in an implementation by Ellis \cite{ellisfinger}. 
+Audio fingerprinting refers to the method of extracting content-based signatures from audio \cite{cano2005review}. {\color{red}more references needed?} It is most commonly used in content-based music identification systems like Shazam.\footnote{https://www.shazam.com \color{red}{add access date to all links}}
+Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
 % The implementation was adapted to this task by: 
 % \begin{enumerate*}
 % \item Enabling the system to handle longer audio queries.
 % \item Optimizing the parameters for landmark matching.
 % \end{enumerate*}
 
-Fingerprinting is a good choice for building systems that are robust against attacks such as pitch shifting or time stretching of audio, but in the case of sample detection, a sample is usually one component in a mixture of audio. Audio fingerprinting detects the exact audio but wouldn't perform well when the audio is mixed and masked by other audio signals.
+While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but can't perform well when the audio is mixed and masked by other audio signals.
 
 \subsection{Cover Song Detection}
 Cover song detection is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,serracover,bertin2011large}.
-In cover song detection, covers may also be transposed or pitch-shifted and may vary in tempo from the original song. Dynamic Time Warping (DTW) \cite{berndt1994using} is often used to make these systems time invariant. The difference lies in the fact that covers are renditions of a musical piece, while samples are snippets of audio which are usually a part of the mix overlaid with a lot of other instruments and sounds that are original to the new song.
+Covers may, for example, be transposed and may vary in tempo from the original song. Dynamic Time Warping (DTW) \cite{berndt1994using} {\color{red}is this the right reference here?} is often used to make these systems tempo invariant. The difference to sample detection lies in the fact that covers are renditions of a musical piece, while samples are snippets of audio which are usually a part of the mix overlaid with multiple other instruments and sounds unrelated to the sample.
+%
+The evaluation, however, is highly similar. Both have a test/reference pair which is then categorized as a positive or negative match with a confidence measure. {\color{red}add references here}
 
-Evaluating cover song detection systems and a sample detection system is highly similar. Both have a test/reference pair which is then categorized as a positive or negative match with a confidence measure. 
 \subsection{Remix Recognition}
-
+Remix recognition aims at identifying... {\color{red}could you double check this whole paragraph? Your description does not seem to be in line with their abstract. Also, if you have only two authors, you can't use et al. --- that would be plural}
 Work done in remix recognition by Casey et al. \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. They snip an audio track into 4 second `shingles' and search in a set of similarly snipped test tracks using popular low-level audio features such as MFCCs and pitch-class profiles. In sample detection, such a system wouldn't work because the features would capture information of the whole mix instead of just the sample.
 
-\subsection{Non-negative Matrix Factorization-based Approach}
+\subsection{Sample detection with Non-negative Matrix Factorization}
+%
+Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They propose to make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song the gives the likelihood of plagiarism.
+%
+While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system. It appears that sample detection as a task in music information retrieval, has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
 
-Dittmar et al. outlined three kinds of plagiarism in music, one of them being sample plagiarism \cite{dittmar2012audio}. They make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song gives the likelihood of plagiarism.
 
-While the authors provide an outline for sample detection, they do not offer a very detailed description of the specific algorithm. Sample detection, as a task in music information retrieval, hasn't yet been well defined in terms of methodology or evaluation. Publications are few and datasets related to sampling are non-existent or proprietary.
-
-
-\section{Sample Detection Algorithm}
+\section{Method}
 \label{algo}
 
 \begin{figure}[!ht]
@@ -144,13 +144,12 @@ While the authors provide an outline for sample detection, they do not offer a v
 \label{fig_block}
 \end{figure}
 
-The algorithm presented in this paper is based on the work by Dittmar et al. \cite{dittmar2012audio} The reason we chose to go with an NMF-based approach to sample detection is because of its prevalence in source separation tasks \cite{virtanen2007monaural}. The task of sample detection is similar to a source identification problem where the sample is one of the sources present in the mix. The block diagram in Fig. \ref{fig_block} shows the high level processing steps of the algorithm.
+The algorithm presented in this paper is inspired by the work of Dittmar et al.~\cite{dittmar2012audio}. Since the task of sample detection is similar to a source identification problem where the sample is one of the sources present in the mix, an NMF-based approach is fitting due to its prevalence in source separation tasks \cite{virtanen2007monaural}.{\color{red}add more references here} The block diagram in \figref{fig_block} shows the processing steps of the algorithm.
 
 \subsection{Non-Negative Matrix Factorization}
-
-NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{koren2009matrix} and signal processing\cite{lee1999learning}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$.
+NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{koren2009matrix} and signal processing\cite{lee1999learning}{\color{red}why these two references? It seems random}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$.
 \[ V = W\cdot H\]
-If $V$ is the magnitude spectrogram, $W$ contains the $K$ spectral or harmonic information in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
+If $V$ is the magnitude spectrogram, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
 Given the original sample, after RMS normalizing, downmixing and downsampling audio to 22050Hz, we compute its magnitude spectrogram(block size 4096, hop size 1024 samples). Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
 Using NMF, an original sample spectrogram will be factorized into its $K$ templates, $W_\mathrm{o}$, and activation matrix, $H_\mathrm{o}$. A sample, used in a song, may be thought of as a source in a mixture of other sources in the song in question. Using the extracted templates $W_\mathrm{o}$ from the original sample, we can obtain the corresponding activations, $H_\mathrm{s}$, in the song mixture by performing a partially fixed NMF\cite{wu2015drum} where the templates $W_\mathrm{o}$ are fixed and the mixture templates $W_\mathrm{m}$ are iteratively learned. In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to $W_\mathrm{o}$ since they indicate the presence of the sample in the song. Given that the sample wasn't pitch shifted or time-stretched, a cross-correlation between the activations $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed and peaks would show the presence of the sample. The 2-d cross-correlation between corresponding activation functions can be aggregated across the $K$ dimensions and figure \ref{fig1} shows results when the geometric mean was used for aggregation, for a true positive and a true negative detection.
