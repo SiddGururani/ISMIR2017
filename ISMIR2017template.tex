@@ -17,6 +17,7 @@
 \usepackage{color}
 \usepackage{microtype}
 \usepackage{units}
+\usepackage{paralist}
 
 
 % Title.
@@ -194,7 +195,7 @@ In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with
 \label{fig2}
 \end{figure}
 
-This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_\mathrm{s}$. We compute the cost matrix using DTW. The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one}
+This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_\mathrm{s}$. We compute the cost matrix using DTW. The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one, describe hte last row of the cost matrix etc}
 
 \subsubsection{Activation Normalization}
 Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
@@ -206,43 +207,59 @@ H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
 Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
 {\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
+\subsubsection{Pitch Candidate Selection}
+From the set of pitch-shifted activation functions, the candidate with the most likely pitch-shift factor has to be inferred. For each set of activations corresponding to the different pitch-shifted templates, the DTW cost matrix is computed. The most likely pitch candidate will be the one with the global minimum cost lower than that of all other candidates. All subsequent computations are based on the activation matrix of the selected candidate; the results for all other pitch-shifted templates are discarded.
+
 \subsection{Feature Extraction}
-Before feature extraction, we infer the pitch-shift factor applied to the sample. For each set of activations corresponding to the different pitch-shifted templates, the minimum cost DTW path is computed. The global minimum among these paths is used to determine which pitch-shift is applied and further computations are done using the corresponding activation matrix.
+The DTW cost matrix and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig3} shows an example of a cost matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. The last row of the matrix, containing the alignment path cost normalized by the length of the path, will be referred to as \textit{DTW cost function}. Local minima in the DTW cost function indicate potential sample end points.
+%To detect whether a sample is present in a song, DTW costs are computed for alignment paths backtracking from all end frames in the song and normalized by the length of the path. This mapping for every end frame in the song to the DTW cost for the path ending at that frame is called the DTW cost function. Figure \ref{fig3} shows an example of this mapping. Ideally, the end frame where the sample ends will be a local or global minimum in the function.
 
-To detect whether a sample is present in a song, DTW costs are computed for alignment paths backtracking from all end frames in the song and normalized by the length of the path. This mapping for every end frame in the song to the DTW cost for the path ending at that frame is called the DTW cost function. Figure \ref{fig3} shows an example of this mapping. Ideally, the end frame where the sample ends will be a local or global minimum in the function.
-
-\begin{figure}[!ht]
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{DTWcost.png}
 \caption{DTW cost function; Minima indicate the end of the sample}
 \label{fig3}
 \end{figure}
 
-% \subsubsection{Detection}
+Using an absolute threshold on the DTW cost function to detect a sample is not meaningful because a low alignment cost in one song might not be a low cost in another song. The mixing ratio of different samples in different songs will be different. Some might occur in a section with no other sources while others might be heavily overlaid with other sounds, leading to varying strength in activations across different song and sample pairs. Backtracking the DTW paths from all possible end points to their corresponding start location results in a set of unique start locations for each song and sample pair. Every unique start location is a candidate for a sample being present. Note that each unique start location can have multiple paths/end points. \figref{fig4} shows one example of this function.
+The following features are extracted from this data. {\color{red}would it make sense to add more explanation as to why the designed features make sense?}
 
+%Another feature obtained from the DTW is the location in the song at which an alignment path starts. Intuitively, given that a sample is present, the DTW backtracking path for end frames in the neighborhood of the exact location where the sample ends would also, after some DTW steps, merge into the optimal alignment path. Therefore, mapping the end points to the start points, we would observe a constant start point value for end points in the neighborhood of the location of the sample. This mapping is called the DTW path start function. Figure \ref{fig4} shows one example of this function. A flat step in this function refers to ending frames that map to the same start point in the song after DTW.
 
-
-Using an absolute threshold on the DTW cost to detect a sample is not meaningful because a low alignment cost in one song might not be a low cost in another song. The reason is that the mixing factor of samples in different songs may be different. Some might have a quiet signal at the sample sample whereas in other songs a sample might be heavily overlaid with other sounds. This leads to varying strength in activations across different song and sample pairs. 
-% Hence it is imperative to normalize activations across songs and samples. We discuss how normalization is done in Sect. \ref{dis}
-
-Another feature obtained from the DTW is the location in the song at which an alignment path starts. Intuitively, given that a sample is present, the DTW backtracking path for end frames in the neighborhood of the exact location where the sample ends would also, after some DTW steps, merge into the optimal alignment path. Therefore, mapping the end points to the start points, we would observe a constant start point value for end points in the neighborhood of the location of the sample. This mapping is called the DTW path start function. Figure \ref{fig4} shows one example of this function. A flat step in this function refers to ending frames that map to the same start point in the song after DTW.
-
-\begin{figure}[!ht]
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{DTWpath.png}
 \caption{DTW path start function; Longer steps indicate sample}
 \label{fig4}
 \end{figure}
 
-A valid assumption for each step in this function is that the local minimum of the DTW cost function should be considered as a candidate for sample detection. Hence for each song and sample pair, each unique start location in the DTW path start function is a candidate for classification and we extract the following features from the two aforementioned mappings as well as the DTW paths that were computed.
+%A valid assumption for each step in this function is that the local minimum of the DTW cost function should be considered as a candidate for sample detection. Hence for each song and sample pair, each unique start location in the DTW path start function is a candidate for classification and we extract the following features from the two aforementioned mappings as well as the DTW paths that were computed.
 
-\subsubsection{DTW Cost: 3 features}
-We extract the local minimum of the DTW cost for each end point corresponding to the unique start location. Along with the minimum, we also compute the mean and standard deviation of the cost over the set of points that map to the current step. The costs are normalized by the DTW path length.
+\subsubsection{Cost-based Features}
+From the multiple path end points of each start location, the following three features are extracted: 
+\begin{inparaenum}[(i)]
+    \item   the minimum DTW cost across all end points,
+    \item   the average DTW cost across all end points, and
+    \item   the standard deviation of the DTW cost across all end points.
+\end{inparaenum}
+%We extract the local minimum of the DTW cost for each end point corresponding to the unique start location. Along with the minimum, we also compute the mean and standard deviation of the cost over the set of points that map to the current step. The costs are normalized by the DTW path length.
 
-\subsubsection{Path Features: 7 features}
-After extracting the local minimum DTW cost, we also extract the length and slope of the path for the minimum cost. In addition, we compute the mean deviation of the path's slope from a straight line. In this discretized space, the deviation is computed using euclidean geometry. The distance matrix's first point is chosen as origin. The line joining the start point and end point of the path is computed and for every other point in the path, we accumulate the perpendicular distance from the straight line and normalize by the length of the path. The final features used are the length, slope and slope deviation of the minimum cost path, mean and standard deviation of path slopes within the step, and mean and standard deviations of all path lengths within the step.
+\subsubsection{Path-based Features}
+The properties of the DTW alignment path should be meaningful for detecting the presence of the sample.  For example, the tempo of the sample should stay roughly constant, meaning that the slope of the path stays constant as well. Thus, the idealized path is computed by drawing a line from start point to end point. 
+Overall, the following features are extracted:
+\begin{inparaenum}[(i)]
+    \item   the absolute length of the minimum cost path normalized by the sample length,
+    \item   the slope of the minimum cost path, 
+    \item   the average perpendicular deviation of the minimum cost path from the idealized path, normalized by the length of the path,
+    \item   the average slope across all end point paths, 
+    \item   {\color{red}it seems I have lost one feature!!!},
+    \item   the average perpendicular deviation from the idealized path across all end point paths, normalized by the length of the paths,
+    \item   the standard deviation of the perpendicular deviation from the idealized path across all end point paths, normalized by the length of the path, and
+    \item   the number of end points for this unique start location.
+\end{inparaenum}
+%After extracting the local minimum DTW cost, we also extract the length and slope of the path for the minimum cost. In addition, we compute the mean deviation of the path's slope from a straight line. In this discretized space, the deviation is computed using euclidean geometry. The final features used are the length, slope and slope deviation of the minimum cost path, mean and standard deviation of path slopes within the step, and mean and standard deviations of all path lengths within the step.
 
-In addition, we use the length of the step in the DTW path start function corresponding to the current unique start location. This gives us a 11-dimensional feature space.
+%In addition, we use the length of the step in the DTW path start function corresponding to the current unique start location. This gives us a 11-dimensional feature space.
 
 % \begin{enumerate}
 % \item DTW cost: Local minimum in the DTW cost function.
@@ -259,10 +276,10 @@ In addition, we use the length of the step in the DTW path start function corres
 
 \subsection{Classification}
 \label{class}
+Each unique start location is now represented by an 11-dimensional feature vector, which is a data point that can be used as the input to a binary classifier for detecting whether a sample is present or not.
+%Given the set of features extracted for each unique start location, the task at hand is a simple binary classification. The definition of an instance or a data point $x$ in our case is: Every unique start location in the DTW path start function. The classifier needs to decide whether a sample is present at the location denoted by $x$.
 
-Given the set of features extracted for each unique start location, the task at hand is a simple binary classification. The definition of an instance or a data point $x$ in our case is: Every unique start location in the DTW path start function. The classifier needs to decide whether a sample is present at the location denoted by $x$.
-
-A random forest classifier was chosen for this task \cite{breiman2001random}. The input is a 11-dimensional feature vector described above and it classifies each datapoint as a location where the sample is present or not with a probability of the instance being in each class. We use an ensemble of 200 decision trees and the number of features chosen for each decision split is 4.
+A random forest classifier with an ensemble of 200 decision trees was chosen for this task \cite{breiman2001random}. The number of features chosen for each decision split is 4. The output is a probability of the data point belonging to each class.
 
 % \begin{algorithm}
 % \begin{enumerate}
