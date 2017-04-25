@@ -297,15 +297,27 @@ A random forest classifier with an ensemble of 200 decision trees was chosen for
 \label{eval}
 
 \subsection{Dataset}
-A dataset was compiled using whosampled.com\footnote{www.whosampled.com, last accessed: 1/22/2017} for this task. Whosampled is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites like Youtube or Dailymotion.
+A dataset was compiled for this task using data from whosampled.com.\footnote{www.whosampled.com, last accessed: 1/22/2017} Whosampled.com is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
 
-80 samples were selected with original songs from influential artists like James Brown, Stevie Wonder, Michael Jackson, and other artists. The songs that used these samples are from Hip-Hop, Pop and Rap genres in general with a few exceptions. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876.
+80 samples were selected acoording to the following criteria:
+\begin{inparaenum}[(i)]
+    \item   the original songs are from influential artists like James Brown, Stevie Wonder, Michael Jackson and have been sampled multiple times, 
+    \item   {\color{red}add more criteria (genres, length, etc.)}
+\end{inparaenum}
 
-For each original song, the start and end time of the segment that was sampled is manually annotated. In songs that used a sample, all start locations of the sample are annotated.
-%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
-All annotation is done using Sonic Visualizer \cite{SonicVisualiser}. In addition, the pitch-shift factor of the sample in the song are annotated.
+    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. {\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
 
-These annotations including the song names and URLs for obtaining the audio have been made available publicly.\footnote{www.github.com/placeholder\_repo}
+The following annotations were added manually with the software Sonic Visualizer \cite{SonicVisualiser}:
+\begin{inparaenum}[(i)]
+    \item   start and end time in seconds of the sample in the original song,
+    \item   start time in seconds of the sample in the sampling song, and
+    \item   pitch shift factor of the sample in the sampling song.
+\end{inparaenum}
+%For each original song, the start and end time of the segment that was sampled is manually annotated. In songs that used a sample, all start locations of the sample are annotated.
+%%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
+%All annotation is done using Sonic Visualizer \cite{SonicVisualiser}. In addition, the pitch-shift factor of the sample in the song are annotated.
+
+These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository.\footnote{www.github.com/placeholder\_repo}
 
 \subsection{Experiments}
 \label{exp}
