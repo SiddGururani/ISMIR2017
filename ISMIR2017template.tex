@@ -92,7 +92,7 @@ The algorithm discussed in this paper focuses on solving the problem of detectin
 %
 \section{Related Work}
 \label{related}
-The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} gives an overview of differences between audio fingerprinting, cover song detection, and sample detection systems. {\color{red}Would it look better to flip the table and put it into one column?}
+The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. {\color{red}Would it look better to flip the table and put it into one column?}
 
 \begin{table*}[!ht]
 \centering
@@ -150,58 +150,63 @@ The algorithm presented in this paper is inspired by the work of Dittmar et al.~
 \subsection{Non-Negative Matrix Factorization}
 NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{koren2009matrix} and signal processing\cite{lee1999learning}{\color{red}why these two references? It seems random}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$:
 \[ V \approx W\cdot H.\]
-If $V$ is the magnitude spectrogram, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
+If $V$ is the magnitude spectrogram with $M$ frequency bins and $N$ blocks, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
 In a pre-processing step, both the original sample and the query song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
 Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in the query song. 
-The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ that is iteratively learned and represents what we refer to as the mixture templates. All activations are iteratively updated as well.
-In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to the original templates $W_\mathrm{o}$ as they indicate the presence of the sample in the song if they match the pattern in the original activations $H_\mathrm{o}$. Under the assumption that the sample was neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function then indicate the presence of the sample. \figref{fig1} shows two example results using the geometric mean for aggregation: in the top, the sample occurs twice in the song, while in the sample is not present in the song at the bottom. {\color{red}you keep talking about 2D correlation, but if you are using the geometric mean there is no real 2D, is there?}
+The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ with $L$ templates that is iteratively learned and represents what we refer to as the mixture templates. The dimension of the complete template matrix is thus $M\times (K+L)$. All activations are iteratively updated as well.
 
-\begin{figure}[!ht]
+\subsubsection{NMF Rank Selection}
+\label{nmfrank}
+The rank $K$ of the sample spectrogram has to be chosen based on how many spectral templates need to be used to approximate the specific sample. Similarly, while doing the partially fixed NMF, the rank $L$ for approximating the templates representing the remaining mixture in the song has to be selected in a way that minimizes the impact on the fixed sample template activations in order to robustly detect the sample.
+
+Different songs will usually require different ranks for accurately approximating and factorizing their magnitude spectrograms with a low reconstruction error. In the current algorithm, however, fixed ranks are chosen: $K=10$ and $L=20$. The rationale behind this is that for this task a perfect reconstruction is not required and that the DTW should be robust enough to detect the sample and regardless of whether the templates are able to combine linearly to accurately reconstruct the original spectrogram. If the sample is used in a song, the same fixed templates should produce a roughly similar set of activations regardless of the harmonic rank. 
+
+A possible extension could be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
+
+\subsection{Activation function processing {\color{red}not sure what title works here}
+}
+In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to the original templates $W_\mathrm{o}$ as they indicate the presence of the sample in the song if they match the pattern in the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: in the top, the sample occurs twice in the song, while in the sample is not present in the song at the bottom. {\color{red}you keep talking about 2D correlation, but if you are using the geometric mean there is no real 2D, is there?}
+
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{corr.png}
 \caption{Geometric mean of correlation functions for when sample is present twice (above) and sample is absent (below)}
 \label{fig1}
 \end{figure}
 
-\subsubsection{Pitch-shifting}
+\subsubsection{Pitch-shifting \& Time-stretching}
+The assumption that the sample is neither time-stretched nor pitch-shifted is not true for the majority of cases {\color{red}(can you provide dataset statistics supporting this?)}. Pitch-shifting is often required for the sample to match the tonality of the song, and time-stretching is often required to adjust for tempo differences between sample and song.
 
-Pitch-shifting is a very common effect applied to samples before being used by artists in their own composition. It refers to the process of changing the pitch of the original sample up or down. In case of pitch-shifting, the sample templates $W_\mathrm{o}$ will no longer be the bases in the mixture since the spectral content has shifted logarithmically in the frequency scale by the pitch-shift factor. In order to account for pitch-shifting, we construct new sets of spectral templates by scaling the frequency axis of the templates with a number of hypothesized pitch-shift factors and create an extended $W_\mathrm{o}$ matrix. Now, a partially fixed NMF will be able to extract activations corresponding to each set of pitch-shifted templates and these may be compared to the activations from the original sample.
+%Pitch-shifting is a very common effect applied to samples before being used by artists in their own composition. It refers to the process of changing the pitch of the original sample up or down. 
+In case of pitch-shifting, the sample templates $W_\mathrm{o}$ will no longer be valid templates since the frequency axis of the spectral content will be scaled by the pitch-shift factor. In order to account for pitch-shifting, we construct new sets of spectral templates by scaling the frequency axis of the templates with a number of hypothesized pitch-shift factors and create an extended $W_\mathrm{o}$ matrix. Now, a partially fixed NMF will be able to extract activations corresponding to each set of pitch-shifted templates and these may be compared to the activations from the original sample. {\color{red}wait, didn't you say you run an NMF per pitch? Is this still true? Also, give details about pitch shifting resolution and range}
 
-\subsubsection{Time-stretching}
+%\subsubsection{Time-stretching}
 
-Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. In the case where a sample is time-stretched, the activations from the song will be similarly stretched and we can no longer use a cross-correlation since the activations will no longer align at a point where the sample is present.
-
-In such a scenario, Dynamic Time Warping is used to align the activations $H_\mathrm{o}$ with the activations $H_\mathrm{s}$ at a start frame $f$ in the song for each pitch-shift factor. A distance matrix is constructed using the pair-wise 2-d correlation between the $K$ dimensional activations. 
-\begin{figure}[!ht]
+%Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. 
+When the sample is time-stretched, the activations from the song will be similarly stretched and cross-correlation can no longer be used since the activation patterns stretched or compressed where the sample is present.
+%
+In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_\mathrm{s}$ at a start frame $f$ in the song for each pitch-shift factor. A distance matrix is constructed using the pair-wise cosine distance between the $K$ dimensional activations. {\color{red}cosine distance is correct, right?}
+\begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{distmat.png}
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
 
-This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_\mathrm{s}$. We compute the cost matrix using DTW. The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. 
-
-\subsubsection{NMF Rank Selection}
-\label{nmfrank}
-
-We need to select parameters for the rank $K$ of the sample spectrogram based on how many spectral templates can be used to approximate the sample. Similarly, while doing the partially fixed NMF, we need to define a rank to approximate the remaining mixture in the song so that the fixed sample templates are able to properly model the presence of the sample and reflect that in the activations.
-
-Different songs will require different ranks for accurately approximating and factorizing the magnitude spectrograms with a low reconstruction error. In the current algorithm, fixed ranks are chosen empirically for both, the sample NMF and the mixture NMF, 10 and 20 respectively. The rationale behind this is that for this task a perfect reconstruction is not required. The templates and activations may be treated as intermediate time series for DTW to detect the sample and regardless of whether the templates are able to combine linearly to accurately reconstruct the original spectrogram, if the sample is used in a song, the same fixed templates should produce a similar set of activations. 
-
-A possible extension could be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and set variable ranks based on the complexity of the spectrogram to be modeled. 
+This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_\mathrm{s}$. We compute the cost matrix using DTW. The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one}
 
 \subsubsection{Activation Normalization}
-
-In order for a correct sample detection, it is necessary to properly normalize the sets of activations extracted from the sample and the query song. Each set of activations is normalized by the absolute maximum across all the $K$ activations across time. The idea is to preserve relative activation strengths for all the spectral templates of the sample.
-
-\[H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall t )}\]
+Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
+%
+\begin{equation}
+H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
+\end{equation}
 
 Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
-
+{\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
 \subsection{Feature Extraction}
-
 Before feature extraction, we infer the pitch-shift factor applied to the sample. For each set of activations corresponding to the different pitch-shifted templates, the minimum cost DTW path is computed. The global minimum among these paths is used to determine which pitch-shift is applied and further computations are done using the corresponding activation matrix.
 
 To detect whether a sample is present in a song, DTW costs are computed for alignment paths backtracking from all end frames in the song and normalized by the length of the path. This mapping for every end frame in the song to the DTW cost for the path ending at that frame is called the DTW cost function. Figure \ref{fig3} shows an example of this mapping. Ideally, the end frame where the sample ends will be a local or global minimum in the function.
