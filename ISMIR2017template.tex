@@ -16,6 +16,7 @@
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage{microtype}
+\usepackage{units}
 
 
 % Title.
@@ -99,7 +100,7 @@ The task of sample detection has been addressed in only few previous works. Howe
 \begin{tabular}{|c|c|c|c|}
 \hline
 \multicolumn{1}{|l|}{}        & \textbf{Audio Fingerprinting} & \textbf{Cover Song Detection} & \textbf{Sample Detection}\\ \hline
-\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio is detected, with \\ some degradation possible\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  but possibly modified \end{tabular}                  \\ \hline
+\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio (degraded) \\ is detected\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  but possibly modified \end{tabular}                  \\ \hline
 \begin{tabular}[c]{@{}c@{}}Addition of extra \\ audio tracks\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Only query audio is \\ present\end{tabular}         & \begin{tabular}[c]{@{}c@{}}Cover contains modifications \\  (structural, instrumental, \ldots) \end{tabular} & \begin{tabular}[c]{@{}c@{}}Sample is present in a mixture \\ of many other audio tracks \end{tabular} \\ \hline
 \end{tabular}
 \caption{Comparison Table of Related Work}
@@ -131,7 +132,7 @@ Work done in remix recognition by Casey et al. \cite{caseyRemix} draws inspirati
 %
 Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They propose to make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song the gives the likelihood of plagiarism.
 %
-While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system. It appears that sample detection as a task in music information retrieval, has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
+While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system. It appears that sample detection as a task in music information retrieval has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
 
 
 \section{Method}
@@ -147,12 +148,14 @@ While the authors provide a general outline of a sample detection system, they n
 The algorithm presented in this paper is inspired by the work of Dittmar et al.~\cite{dittmar2012audio}. Since the task of sample detection is similar to a source identification problem where the sample is one of the sources present in the mix, an NMF-based approach is fitting due to its prevalence in source separation tasks \cite{virtanen2007monaural}.{\color{red}add more references here} The block diagram in \figref{fig_block} shows the processing steps of the algorithm.
 
 \subsection{Non-Negative Matrix Factorization}
-NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{koren2009matrix} and signal processing\cite{lee1999learning}{\color{red}why these two references? It seems random}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$.
-\[ V = W\cdot H\]
+NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{koren2009matrix} and signal processing\cite{lee1999learning}{\color{red}why these two references? It seems random}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$:
+\[ V \approx W\cdot H.\]
 If $V$ is the magnitude spectrogram, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
-Given the original sample, after RMS normalizing, downmixing and downsampling audio to 22050Hz, we compute its magnitude spectrogram(block size 4096, hop size 1024 samples). Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
-Using NMF, an original sample spectrogram will be factorized into its $K$ templates, $W_\mathrm{o}$, and activation matrix, $H_\mathrm{o}$. A sample, used in a song, may be thought of as a source in a mixture of other sources in the song in question. Using the extracted templates $W_\mathrm{o}$ from the original sample, we can obtain the corresponding activations, $H_\mathrm{s}$, in the song mixture by performing a partially fixed NMF\cite{wu2015drum} where the templates $W_\mathrm{o}$ are fixed and the mixture templates $W_\mathrm{m}$ are iteratively learned. In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to $W_\mathrm{o}$ since they indicate the presence of the sample in the song. Given that the sample wasn't pitch shifted or time-stretched, a cross-correlation between the activations $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed and peaks would show the presence of the sample. The 2-d cross-correlation between corresponding activation functions can be aggregated across the $K$ dimensions and figure \ref{fig1} shows results when the geometric mean was used for aggregation, for a true positive and a true negative detection.
+In a pre-processing step, both the original sample and the query song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
+Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in the query song. 
+The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ that is iteratively learned and represents what we refer to as the mixture templates. All activations are iteratively updated as well.
+In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to the original templates $W_\mathrm{o}$ as they indicate the presence of the sample in the song if they match the pattern in the original activations $H_\mathrm{o}$. Under the assumption that the sample was neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function then indicate the presence of the sample. \figref{fig1} shows two example results using the geometric mean for aggregation: in the top, the sample occurs twice in the song, while in the sample is not present in the song at the bottom. {\color{red}you keep talking about 2D correlation, but if you are using the geometric mean there is no real 2D, is there?}
 
 \begin{figure}[!ht]
 \centering
