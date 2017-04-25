@@ -343,7 +343,7 @@ In summary, using both the Macro and Micro-level accuracy metrics we are able to
 
 \section{Results}
 {\color{red} I think we should just remove E2. Then we just combine results and discussion.}
-The tables \ref{results} report the training accuracy as well as the testing accuracy for our classifier. For reference:
+The \tabref{results} report the training accuracy as well as the testing accuracy for our classifier. For reference:
 \begin{itemize}
 \item E1: All $50 \times 10$ sample-song pairs are used to train the classifier.
 \item E2: Some samples are pruned from the training set to remove cases where NMF activations fail to align. 12 samples are removed. Hence, $38 \times 10$ sample-song pairs are used to train the classifier.
@@ -363,18 +363,17 @@ The tables \ref{results} report the training accuracy as well as the testing acc
 \caption{Results for song-level macro accuracy and sample location-level micro accuracy measures}
 \label{results}
 \end{table}
-
+{\color{red} Would a confusion matrix make sense?}
 
 \section{Discussion}
 \label{disc}
+The results in \tabref{results} show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that aren't locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. %We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
 
-Based on the results presented, it is clear that this method is somewhat effective at detecting the presence of sampling in a set of song with high precision and a very low false-positive rate. The low recall of the method can be attributed to the highly imbalanced nature of the problem. The testing dataset has 289 instances of sampling against around 74,000 instances that aren't locations of sampling. Similarly, the training set is also skewed in its distribution of positive and negative classes. We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
+Another possible reason for the low recall is that the method isn't always accurate when it comes to picking candidates. More specifically, it misses approximately 8\% of sampling instances during the feature extraction stage. {\color{red}What are the reasons? Any specific plot or visualization to show this?} A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths. {\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
+%
+The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step. The choice of the distance measure might also impact the results: while the use of the cosine distance makes sense because it emphasizes similarity in a sequence of values, other distance measure might outperform it in this particular use-case.
 
-Another probably reason for the low recall is that the method isn't completely accurate when it comes to picking candidates. It misses out on approximately 8\% of sampling instances during the feature extraction stage. Furthermore, upon observation of some training examples, it was found that, the DTW cost function did not have a minimum at respective sample locations. While our classifier isn't trained to rely heavily on DTW cost alone but also on the alignment paths, we did observe that, in these problematic cases, the distance matrix would not contain clear alignment paths. This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
-
-Absence of clear alignment paths stem from incorrect modeling of the fixed sample templates in the song NMF step, and/or due to the distance measure chosen. While the use of correlation makes sense because it emphasizes similarity in a sequence of values, there could still be a better distance measure for this particular use-case.
-
-The problematic cases that we came across were not very straightforward cases of sampling. These samples were sparse drum loops, very short samples, very quiet in the mix, and some had other DSP effects applied to them. As mentioned in Section \ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
+It is worth to point out that the most problematic cases that we came across were particularly hard to detect. These case included sparse drum loops, very short samples, samples that were very quiet in the mix, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
 % \label{dis}
 
@@ -400,11 +399,11 @@ The problematic cases that we came across were not very straightforward cases of
 
 \section{Future Work}
 
-The method described in this paper is a promising step towards automatic sample detection, however, further research needs to be done in order to make this method practical. Since the broad algorithm involving NMF and DTW works for most cases, a systematic way to go about improving this method would we to investigate the problematic cases and drastically reduce false negatives.
+The method described in this paper is a promising step towards automatic sample detection, however, further research is required in order to improve the usability of this method. Since the algorithm comprising NMF and DTW works for many cases, a systematic way to go about improving it would be to more closely investigate the problematic cases in order to design modifications and algorithmic extension to reduce the number of false negatives.
 
-As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While we attempted undersampling, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
+As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While undersampling is a simple approach, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
 
-Investigating custom distance measures for the DTW is another possible avenue to explore. Applying non-linearity to the NMF activations as a pre-processing step may also help in improving the features and eventually differentiating between an instance containing and sample and one that does not. While this should positively impact both, false positives and false negatives, false positives may also be reduced by post processing the classifier output, for example, by making sure a positive output is a local minimum in the DTW cost function.
+Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may also help in increasing the sparsity and eventually in improving the differentiation between an instance containing and sample and one that does not. While this should positively impact both, false positives and false negatives, false positives may also be reduced by post processing the classifier output, for example, by making sure a positive output is a local minimum in the DTW cost function. {\color{red} Hmm. I don't get this last one....}
 
 \section{Conclusion}
 
@@ -413,7 +412,9 @@ Investigating custom distance measures for the DTW is another possible avenue to
 %3. talk about performance, high precision.
 %4. Talk about future work
 
-We introduce a method to automatically detect the presence of a sample in a set of songs based on NMF, to extract common activations for templates from the sample, and DTW, to align the set of activations obtained from the song and the sample. This method proposed is robust against common audio effects like pitch-shifting and time-stretching. We also present a new dataset of real-world samples and songs along with detailed annotations containing fine-grained annotations for exact time locations within the song. The method is evaluated against this dataset and we obtain 78\% precision in detecting the exact location of the sample and 74\% precision in song-level detection of a given sample. Some further directions of research have also been suggested which, supported by the new dataset, may be undertaken by the MIR community toward establishing a state-of-the-art in automatic sample detection.
+We introduced a method to automatically detect the presence of a sample in a set of songs robust against common sampling modifications such as pitch-shifting and time-stretching. Partially fixed NMF is used to extract sample activations from the song, and DTW is used to align the set of activations obtained from the song and the sample. 
+We also present a new publicly available dataset of real-world samples and songs containing fine-grained annotations for exact time locations of sample occurrences within the song. The presented method is evaluated against this dataset and we obtain 78\% precision in detecting the exact location of the sample and 74\% precision in song-level detection of a given sample. %Some further directions of research have also been suggested which, supported by the new dataset, may be undertaken by the MIR community toward establishing a state-of-the-art in automatic sample detection.
+Sample detection is a challenging MIR task and it is our hope that the dataset and this paper will encourage future work on this topic in the MIR community.
 % For bibtex users:
 \newpage
 \bibliography{ISMIRtemplate}
