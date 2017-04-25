@@ -299,13 +299,14 @@ A random forest classifier with an ensemble of 200 decision trees was chosen for
 \subsection{Dataset}
 A dataset was compiled for this task using data from whosampled.com.\footnote{www.whosampled.com, last accessed: 1/22/2017} Whosampled.com is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
 
-80 samples were selected acoording to the following criteria:
+80 samples were selected according to the following criteria:
 \begin{inparaenum}[(i)]
     \item   the original songs are from influential artists like James Brown, Stevie Wonder, Michael Jackson and have been sampled multiple times, 
     \item   {\color{red}add more criteria (genres, length, etc.)}
 \end{inparaenum}
 
     The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. {\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
+The overall dataset contains 80 pairs of original song and sampling song.
 
 The following annotations were added manually with the software Sonic Visualizer \cite{SonicVisualiser}:
 \begin{inparaenum}[(i)]
@@ -321,29 +322,35 @@ These annotations plus additional meta-data including the song names, identifier
 
 \subsection{Experiments}
 \label{exp}
+For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. We randomly pick {\color{red}(let's avoid the word sample here...)} 9 songs from these 79 songs; in combination with the one query song that includes the sample this results in 10 query songs for each sample, resulting in an overall number of query songs of $80\cdot10 = 800$ for the $80$ samples.
+%In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
 
-In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
+This overall set is split into a training set of 50 samples/500 queries and a test set of 30 samples/300 queries.
+%To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{disc} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
 
-To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{disc} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
+In order to allow using the ground truth data for training, one additional step of interaction is necessary: all unique start points have to be labeled as `0' or `1' based on whether a sample is present. %In order to achieve this without having to manually tag each unique start point, the ground truth of the time instants of where sample is present are used. 
+More specifically, the start points associated with minimum DTW cost within a 1 second window of the ground truth annotation are labeled `1' and the rest are labeled `0'. %In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
 
-In the training set, for each sample and song pair, all unique start points detected during feature extraction are labeled as `0' or `1' based on whether a sample is present. In order to achieve this without having to manually tag each unique start point, the ground truth of the time instants of where sample is present are used. Any start point within a 1 second window of the ground truth annotation is labeled `1' and the rest are labeled `0'. In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
+For the test set, any positive detection of the sample within a 1 second tolerance window of the ground truth annotation will be regarded as True Positive. Every positive detection outside of this tolerance window and for queries not containing the sample will be regarded as False Positive.
+%For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. 
+If multiple positive detections are obtained in the tolerance window, all but the closest detection are classified as False Positives. {\color{red}wait. is this necessary? can't we just merge them and count them as one TP???}
+%The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. 
+We report False Positive Rate, Precision, Recall, and F-measure for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
 
-For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. If multiple positive detections are obtained in the tolerance window, all but the closest detection are classified as false positives. The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. We report the precision, recall and f-measure for the sample location detection. We refer to these as micro-accuracy measures.
-
-In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures. Using the macro and micro-level accuracy metrics we are able to report the performance of the method on two tasks: First, detecting whether a sample is present in a song, and second, detecting where in a song a given sample is present.
+The \textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same measures False Positive Rate, Precision, Recall, and F-measure are reported, but the sample detection is evaluated per song rather than per sample instance.
+%In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures. 
+In summary, using both the Macro and Micro-level accuracy metrics we are able to report the performance of the method in two scenarios: First, detecting whether a sample is present in a song, and second, detecting where in a song and how often a given sample is present.
 
 \section{Results}
-
+{\color{red} I think we should just remove E2. Then we just combine results and discussion.}
 The tables \ref{results} report the training accuracy as well as the testing accuracy for our classifier. For reference:
 \begin{itemize}
 \item E1: All $50 \times 10$ sample-song pairs are used to train the classifier.
 \item E2: Some samples are pruned from the training set to remove cases where NMF activations fail to align. 12 samples are removed. Hence, $38 \times 10$ sample-song pairs are used to train the classifier.
 \end{itemize}
 
-\begin{table}[!ht]
+\begin{table}[t]
 \centering
-\caption{Results for song-level macro accuracy and sample location-level micro accuracy measures}
-\label{results}
 \begin{tabular}{l|c|c|c|c|}
 \cline{2-5}
                                 & \multicolumn{2}{c|}{E1} & \multicolumn{2}{c|}{E2} \\ \cline{2-5} 
@@ -353,7 +360,10 @@ The tables \ref{results} report the training accuracy as well as the testing acc
 \multicolumn{1}{|l|}{F-measure} & 48.80\%    & 58.82\%    & 47.91\%    & 60.38\%    \\ \hline
 \multicolumn{1}{|l|}{Fp-rate}   & 0.04\%     & 2.22\%     & 0.05\%     & 2.59\%     \\ \hline
 \end{tabular}
+\caption{Results for song-level macro accuracy and sample location-level micro accuracy measures}
+\label{results}
 \end{table}
+
 
 \section{Discussion}
 \label{disc}
