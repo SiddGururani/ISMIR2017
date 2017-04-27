@@ -117,17 +117,17 @@ Van Balen proposed the use audio fingerprinting for sample detection \cite{van20
 % \item Optimizing the parameters for landmark matching.
 % \end{enumerate*}
 
-While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but can't perform well when the audio is mixed and masked by other audio signals.
+While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
 
 \subsection{Cover Song Detection}
 Cover song detection is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,ravuri2010cover,bertin2011large}.
 Covers may, for example, be transposed and may vary in tempo from the original song. Dynamic Time Warping (DTW) \cite{sakoe1978dynamic} is often used to make these systems tempo invariant. The difference to sample detection lies in the fact that covers are renditions of a musical piece, while samples are snippets of audio which are usually a part of the mix overlaid with multiple other instruments and sounds unrelated to the sample.
 %
-The evaluation of both systems, however, can be done in a similar fashion. Both have a test/reference pair which is then categorized as a positive or negative match with or without a confidence measure. Evaluation is done by searching for the top-10 covers detected for actual covers and metrics such as Mean Average Precision, mean rank of first correctly detected cover are computed to compare different cover song detection systems \cite{serracover,serra2007cover}.
+The evaluation of both systems, however, can be done in a similar fashion. Both have a test/reference pair which is then categorized as a positive or negative match with or without a confidence measure. Evaluation is done by searching the top-10 detection covers for the ground-truth covers and metrics such as Mean Average Precision, mean rank of first correctly detected cover are computed to compare different cover song detection systems \cite{serracover,serra2007cover}.
 
 \subsection{Remix Recognition}
 %Remix recognition aims at identifying... {\color{red}could you double check this whole paragraph? Your description does not seem to be in line with their abstract. Also, if you have only two authors, you can't use et al. --- that would be plural}
-Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute low-level audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients (LFCCs) using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that aren't from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. In the context of sample detection, such a system would not work due to the fact that this method relies on long-term similarity between the query and the reference, however, a sample may be short and one-shot.
+Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute low-level audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients (LFCCs) using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that are not from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. In the context of sample detection, such a system would not work due to the fact that this method relies on long-term similarity between the query and the reference, however, a sample may be short and one-shot.
 %They snip an audio track into 4 second `shingles' and search in a set of similarly snipped test tracks using popular low-level audio features such as MFCCs and pitch-class profiles. In sample detection, such a system wouldn't work because the features would capture information of the whole mix instead of just the sample.
 
 \subsection{Sample detection with Non-negative Matrix Factorization}
@@ -178,27 +178,28 @@ In the subsequent analysis, we are only interested in the activations $H_\mathrm
 \end{figure}
 
 \subsubsection{Pitch-shifting \& Time-stretching}
-The assumption that the sample is neither time-stretched nor pitch-shifted is not true for the majority of cases. In the dataset we provide, 57.5\% of samples are pitch-shifted. Pitch-shifting is often required for the sample to match the tonality of the song, and time-stretching is often required to adjust for tempo differences between sample and song.
+The assumption that the sample is neither time-stretched nor pitch-shifted is not true for the majority of cases. In the dataset used for this study, for example, 57.5\% of samples are pitch-shifted. Pitch-shifting is often required for the sample to match the tonality of the song, and time-stretching is often required to adjust for tempo differences between sample and song.
 
 %Pitch-shifting is a very common effect applied to samples before being used by artists in their own composition. It refers to the process of changing the pitch of the original sample up or down. 
 
-In case of pitch-shifting, the sample templates $W_{\mathrm{o}}$ will no longer be valid templates since the frequency axis of the spectral content will be scaled by the pitch-shift factor. In order to account for pitch-shifting, we construct new spectral templates $W_{\mathrm{o}}^{\mathrm{p}}$ by scaling the frequency axis of the original templates with a hypothesized pitch-shift factor. Now, a partially fixed NMF will be able to extract activations corresponding to the pitch-shifted templates and these may be compared to the activations from the original sample. Ideally, we would perform factorizations for a set of hypothesized pitch-shifts usually ranging from one octave lower to one octave higher in semi-tone or quarter-tone steps. For this paper, however, we allow the dataset to inform our pitch-shift steps. Our hypothesized pitch-shift set in semi-tone steps from the original sample templates $W_\mathrm{o}$ is: 
+In case of pitch-shifting, the sample templates $W_{\mathrm{o}}$ will no longer be valid templates since the frequency axis of the spectral content will be scaled by the pitch-shift factor. In order to account for pitch-shifting, we construct new spectral templates $W_{\mathrm{o}}^{\mathrm{p}}$ by scaling the frequency axis of the original templates with a set of hypothesized pitch-shift factors. Now, a partially fixed NMF will be able to extract activations corresponding to the pitch-shifted templates and these may be compared to the activations from the original sample. Ideally, we would perform factorizations for a set of hypothesized pitch-shifts usually ranging from one octave lower to one octave higher in semi-tone or quarter-tone steps. For this paper, however, we allow the dataset to inform our pitch-shift steps. The used pitch-shift set in semi-tone steps from the original sample templates $W_\mathrm{o}$ is: 
 \[ P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}.\]
 %$P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}${\color{red}wait, didn't you say you run an NMF per pitch? Is this still true? Also, give details about pitch shifting resolution and range}
 
-Thus, we perform one partially-fixed NMF for each pitch-shift in $P$ and obtain the activations $H_{\mathrm{s}}^{\mathrm{p}}$ corresponding to the pitch-shifted templates$W_{\mathrm{o}}^{\mathrm{p}}$.
+Partially-fixed NMF is then performance individually for each pitch-shift in $P$. The activations $H_{\mathrm{s}}^{\mathrm{p}}$ correspond to the pitch-shifted templates$W_{\mathrm{o}}^{\mathrm{p}}$.
 %\subsubsection{Time-stretching}
 
 %Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. 
 When the sample is time-stretched, the activations from the song will be similarly stretched and cross-correlation can no longer be used since the activation patterns stretched or compressed where the sample is present.
 %
-In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift factor $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation between the $K$ dimensional activations. The dimensions of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
+In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{distmat.png}
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
+The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig3} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
 
 This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_{\mathrm{s}}^{\mathrm{p}}$. %The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one, describe hte last row of the cost matrix etc}
 %In a standard DTW, the cost matrix $C$ is initialized as follows:
@@ -210,7 +211,7 @@ This problem is now a subsequence search for the sample activations $H_\mathrm{o
 %\end{aligned}
 %\end{equation}
 In a standard DTW, the cost matrix $C$ is initialized by accumulating the first row and first column of the distance matrix $D$.
-Such a scheme is applied when only one global optimal path that aligns the two entire time-series is required. In the case of sample detection, a sample could be present in multiple locations within the song and hence, we ideally require alignment paths at multiple locations in $D$ that align the entire sample with the segments of the song. Therefore, we modify the initialization of $C$ by only accumulating the distances along the dimension of the sample, which in our case is the column. This subsequence DTW scheme\cite{Müller2007} initializes the cost matrix $C$ as follows:
+Such a scheme is applied when only one global optimal path that aligns the two entire time-series is required. In the case of sample detection, a sample could be present in multiple locations within the song; hence, the detection of mulitple alignment paths at multiple locations in $D$ is required. Each of these paths should align the entire sample with the segments of the song. Therefore, the initialization of $C$ is modified to only accumulate the distances along the dimension of the sample, which in our case is the column. This subsequence DTW scheme\cite{Müller2007} initializes the cost matrix $C$ as follows:
 \begin{equation}
 \label{cost_init_new}
 \begin{aligned}
@@ -218,7 +219,7 @@ C(1,j) &= D(1,j)\\
 C(i,1) &= \sum_{k=1}^{i} D(k,i)
 \end{aligned}
 \end{equation}
-Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case in normal DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the entire sample starting at every frame of the song. The backtracking paths now satisfy our requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
+Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case in normal DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the entire sample starting at every frame of the song. The backtracking paths now satisfy the requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
 
 \subsubsection{Activation Normalization}
 Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
@@ -226,8 +227,8 @@ Proper normalization of the activation function is essential for accurate sample
 \begin{equation}
 H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
 \end{equation}
-
-This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$
+%
+{\color{red}shouldn't there be a p in this equation, too?}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
 %Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
 %{\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
@@ -235,7 +236,7 @@ This normalization is applied to all sets of activations, namely: sample activat
 From the set of pitch-shifts, the most likely pitch-shift has to be inferred before feature extraction. For each set of activations corresponding to the different pitch-shifted templates, the DTW cost matrix is computed. The most likely pitch candidate will be the one with the global minimum cost lower than that of all other pitch candidates. All subsequent computations are based on the activation matrix of the selected candidate; the results for all other pitch-shifted templates are discarded.
 
 \subsection{Feature Extraction}
-The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig3} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. The last row of the cost matrix $C$, containing the alignment path costs normalized by the length of the path, will be referred to as \textit{DTW cost function}. Local minima in the DTW cost function indicate potential sample end points.
+The last row of the cost matrix $C$, containing the alignment path costs normalized by the length of the path, will be referred to as \textit{DTW cost function}. Local minima in the DTW cost function indicate potential sample end points.
 %To detect whether a sample is present in a song, DTW costs are computed for alignment paths backtracking from all end frames in the song and normalized by the length of the path. This mapping for every end frame in the song to the DTW cost for the path ending at that frame is called the DTW cost function. Figure \ref{fig3} shows an example of this mapping. Ideally, the end frame where the sample ends will be a local or global minimum in the function.
 
 \begin{figure}[t]
@@ -271,7 +272,7 @@ From the multiple path end points of each start location, the following three fe
 
 \subsubsection{Path-based Features}
 The properties of the DTW alignment path should be meaningful for detecting the presence of the sample.  For example, the tempo of the sample should stay roughly constant, meaning that the slope of the path stays constant as well. Thus, the idealized path is computed by drawing a line from start point to end point. 
-Overall, the following features are extracted for every unique start location: (Note that when we refer to end points here, we refer to the end points that map to this unique start location)
+Overall, the following features are extracted for every unique start location: 
 \begin{inparaenum}[(i)]
     \item   the absolute length of the minimum cost path normalized by the sample length,
     \item   the slope of the minimum cost path, 
@@ -284,6 +285,7 @@ Overall, the following features are extracted for every unique start location: (
     \item   the standard deviation of the perpendicular deviation from the idealized path across all end point paths, normalized by the length of the path, and
     \item   the number of end points mapping to this unique start location.
 \end{inparaenum}
+Note that when we refer to end points here, we refer to the end points that map to this unique start location.
 %After extracting the local minimum DTW cost, we also extract the length and slope of the path for the minimum cost. In addition, we compute the mean deviation of the path's slope from a straight line. In this discretized space, the deviation is computed using euclidean geometry. The final features used are the length, slope and slope deviation of the minimum cost path, mean and standard deviation of path slopes within the step, and mean and standard deviations of all path lengths within the step.
 
 %In addition, we use the length of the step in the DTW path start function corresponding to the current unique start location. This gives us a 11-dimensional feature space.
@@ -327,9 +329,9 @@ A dataset was compiled for this task using data from whosampled.com.\footnote{ww
 
 80 samples were selected according to the following criteria:
 \begin{inparaenum}[(i)]
-    \item   Primarily, the artists were sorted in decreasing order of number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, Queen were among the artists whose original songs were chosen.
-    \item   Good distribution among genres was striven for. Samples range from Pop, Rock, Funk, and Hip-Hop genres.
-		\item		In addition, some of the samples were picked based on the popularity of the songs that are sampling according to the users of Whosampled.
+    \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequwntly sampled artists.
+    \item   The result set has a balanced distribution among genres. Samples range from Pop, Rock, Funk, and Hip-Hop genres.
+	\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
 \end{inparaenum}
 
     The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876.%{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
@@ -339,7 +341,7 @@ The following annotations were added manually with the software Sonic Visualizer
 \begin{inparaenum}[(i)]
     \item   start and end time in seconds of the sample in the original song,
     \item   start time in seconds of the sample in the sampling song, and
-    \item   pitch shift(in semi-tone) of the sample in the sampling song. 57.5\% of the samples are pitch-shifted.
+    \item   pitch shift (in semi-tones) of the sample in the sampling song. 57.5\% of the samples are pitch-shifted.
 \end{inparaenum}
 %For each original song, the start and end time of the segment that was sampled is manually annotated. In songs that used a sample, all start locations of the sample are annotated.
 %%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
@@ -356,11 +358,10 @@ This overall set is split into a training set of 50 samples/500 queries and a te
 %To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{disc} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
 
 In order to allow using the ground truth data for training, one additional step of interaction is necessary: all unique start points have to be labeled as `0' or `1' based on whether a sample is present. %In order to achieve this without having to manually tag each unique start point, the ground truth of the time instants of where sample is present are used. 
-More specifically, the start points associated with minimum DTW cost within a 1 second window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance window are processed in a way that only the minimum are chosen and the rest are removed.%In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
+More specifically, the start points associated with minimum DTW cost within a 1 second window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance range are merged so that the path with the minimum cost remains. Thus, if multiple positive detections are obtained in the tolerance window, they are grouped as one true positive. %In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
 
 For the test set, any positive detection of the sample within a 1 second tolerance window of the ground truth annotation will be regarded as True Positive. Every positive detection outside of this tolerance window and for queries not containing the sample will be regarded as False Positive.
 %For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. 
-If multiple positive detections are obtained in the tolerance window, they are grouped as one true positive. %{\color{red}wait. is this necessary? can't we just merge them and count them as one TP???}
 %The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. 
 We report False Positive Rate, Precision, Recall, and F-measure for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
 
@@ -403,16 +404,16 @@ Macro & 83.33\%   & 50.00\% & 62.50\%   & 1.11\% 	\\ \hline
 \end{tabular}
 \end{table}
 
-The results in \tabref{results} show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that aren't locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. %We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
+The results in \tabref{results} show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. %We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
 
-Another possible reason for the low recall is that the method isn't always accurate when it comes to picking candidates. More specifically, it misses approximately 7\% of sampling instances during the feature extraction stage. This number is computed by setting the probability threshold for classification to 0, essentially classifying all instances as a sample instances. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths. {\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
+Another possible reason for the low recall is that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by setting the probability threshold for classification to 0 {\color{red} What doe you say?}, essentially classifying all instances as a sample instances. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths. {\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
 The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step. The choice of the distance measure might also impact the results: while the use of the cosine distance makes sense because it emphasizes similarity in a sequence of values, other distance measure might outperform it in this particular use-case.
 
 It is worth to point out that the most problematic cases that we came across were particularly hard to detect. These case included sparse drum loops, very short samples, samples that were very quiet in the mix, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
 % \label{dis}
-The high precision of our method, especially in the macro-accuracy use case enables the use of a system like this as a pre-processing step to a manual annotation of sampling instances for studies that trace artist influences. Given a database of songs and a set of samples to look for within the database, this method can be used to pre-label data as cases of sampling with high confidence on songs where samples are detected and the human operator may focus on the remaining database. While this is not ideal, it does cut down on the time taken for manual annotation.
+The high precision of our method, especially in the macro-accuracy use case enables the use of a system like this as a pre-processing step to a manual annotation of sampling instances for studies that trace artist influences. Given a database of songs and a set of samples to look for within the database, this method can be used to pre-label data as cases of sampling with high confidence on songs where samples are detected, allowing the human operator to focus on the remaining database. While this is not ideal, it does cut down on the time taken for manual annotation. {\color{red} Add something about the benefit of high precision in plagiarism detection?}
 % While the algorithm discussed here seems simple and effective in solving the problem, there were several interesting nuances in the topic that were overlooked in previous work by Dittmar et al, as well as our initial implementation of the algorithm. This section will discuss some of these in detail.
 
 % \subsection{DTW computation}
@@ -452,6 +453,7 @@ We introduced a method to automatically detect the presence of a sample in a set
 We also present a new publicly available dataset of real-world samples and songs containing fine-grained annotations for exact time locations of sample occurrences within the song. The presented method is evaluated against this dataset and we obtain 79.37\% precision in detecting the exact location of the sample and 83.33\% precision in song-level detection of a given sample. %Some further directions of research have also been suggested which, supported by the new dataset, may be undertaken by the MIR community toward establishing a state-of-the-art in automatic sample detection.
 Sample detection is a challenging MIR task and it is our hope that the dataset and this paper will encourage future work on this topic in the MIR community.
 % For bibtex users:
+{\color{red} Please make all your references consistent. ICASSP, ISMIR, Transactions, etc. should have the same general text. Also read the instructions in the ISMIR template for abbreviations etc in the references} 
 \bibliography{ISMIRtemplate}
 
 % For non bibtex users:
