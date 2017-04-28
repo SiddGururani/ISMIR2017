@@ -162,23 +162,25 @@ The algorithm presented in this paper is inspired by the work of Dittmar et al.~
 
 \subsection{Non-Negative Matrix Factorization}
 NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{ma2008sorec,koren2009matrix,luo2014efficient} and signal processing tasks, specifically source separation\cite{lee1999learning,smaragdis2014static,virtanen2007monaural}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$:
-\[ V \approx W\cdot H.\]
+\begin{equation}
+    V \approx W\cdot H.
+\end{equation}
 If $V$ is the magnitude spectrogram with $M$ frequency bins and $N$ blocks, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
 In a pre-processing step, both the original sample and the query song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
-Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in the query song. 
+Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in this query song. 
 The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ with $L$ templates that is iteratively learned and represents what we refer to as the mixture templates. The dimension of the complete template matrix is thus $M\times (K+L)$. All activations are iteratively updated as well.
 
 \subsubsection{NMF Rank Selection}
 \label{nmfrank}
-The rank $K$ of the sample spectrogram has to be chosen based on how many spectral templates need to be used to approximate the specific sample. Similarly, while doing the partially fixed NMF, the rank $L$ for approximating the templates representing the remaining mixture in the song has to be selected in a way that minimizes the impact on the fixed sample template activations in order to robustly detect the sample.
+The rank $K$ of the sample spectrogram has to be chosen based on how many spectral templates need to be used to approximate the specific sample. Similarly, while computing the partially fixed NMF, the rank $L$ for approximating the templates representing the remaining mixture in the song has to be selected in a way that minimizes the impact on the fixed sample template activations in order to robustly detect the sample.
 
-Different songs will usually require different ranks for accurately approximating and factorizing their magnitude spectrograms with a low reconstruction error. In the current algorithm, however, fixed ranks are chosen: $K=10$ and $L=20$. The rationale behind fixed ranks is that for this task a perfect reconstruction is not required and that the DTW should be robust enough to detect the sample regardless of whether the templates are able to combine linearly to accurately reconstruct the original spectrogram. If the sample is used in a song, the same fixed templates should produce a roughly similar set of activations regardless of the harmonic rank. 
+Different songs will usually require different ranks for accurately approximating and factorizing their magnitude spectrograms with a low reconstruction error. In the current algorithm, however, fixed ranks are chosen: $K=10$ and $L=20$. The rationale behind fixed ranks is that for this task a perfect reconstruction is not required and that the following processing steps should be robust enough to detect the sample regardless of whether the templates are able to combine linearly to an accurate reconstruction of  the original spectrogram. If the sample is used in a song, the same fixed templates should produce a roughly similar set of activations regardless of the harmonic rank. 
 
-A possible extension could be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
+Still, a possible extension would be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
 
 \subsection{Activation function processing}
-In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to the original templates $W_\mathrm{o}$ as they indicate the presence of the sample in the song if they match the pattern in the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: in the top, the sample occurs twice in the song, while in the sample is not present in the song at the bottom.
+In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$, which are the activations corresponding to the original templates $W_\mathrm{o}$. These activations indicate the presence of the sample in the song if they match the pattern of the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ could be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: sample occurs twice in the black song, while the sample is not present in the blue song.
 
 %\begin{figure}[t]
 %\centering
@@ -203,11 +205,11 @@ In case of pitch-shifting, the sample templates $W_{\mathrm{o}}$ will no longer 
 \[ P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}.\]
 %$P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}${\color{red}wait, didn't you say you run an NMF per pitch? Is this still true? Also, give details about pitch shifting resolution and range}
 
-Partially-fixed NMF is then performance individually for each pitch-shift in $P$. The activations $H_{\mathrm{s}}^{\mathrm{p}}$ correspond to the pitch-shifted templates$W_{\mathrm{o}}^{\mathrm{p}}$.
+Partially-fixed NMF is then performed individually for each pitch-shift in $P$, i.e., $12$ times. The activations $H_{\mathrm{s}}^{\mathrm{p}}$ correspond to the pitch-shifted templates$W_{\mathrm{o}}^{\mathrm{p}}$.
 %\subsubsection{Time-stretching}
 
 %Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. 
-When the sample is time-stretched, the activations from the song will be similarly stretched and cross-correlation can no longer be used since the activation patterns stretched or compressed where the sample is present.
+When the sample is time-stretched, the activations from the song will be stretched or compressed accordingly; therefore, cross-correlation cannot be used.
 %
 In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
 \begin{figure}[t]
@@ -228,7 +230,7 @@ This problem is now a subsequence search for the sample activations $H_\mathrm{o
 %\end{aligned}
 %\end{equation}
 In a standard DTW, the cost matrix $C$ is initialized by accumulating the first row and first column of the distance matrix $D$.
-Such a scheme is applied when only one global optimal path that aligns the two entire time-series is required. In the case of sample detection, a sample could be present in multiple locations within the song; hence, the detection of mulitple alignment paths at multiple locations in $D$ is required. Each of these paths should align the entire sample with the segments of the song. Therefore, the initialization of $C$ is modified to only accumulate the distances along the dimension of the sample, which in our case is the column. This subsequence DTW scheme\cite{Müller2007} initializes the cost matrix $C$ as follows:
+Such a scheme can be applied when only one global optimal path that aligns the two entire time-series is required. In the case of sample detection, a sample could be present in multiple locations within the song; hence, the detection of multiple alignment paths at multiple locations in $D$ is required. Each of these paths should align the entire sample with the segments of the song. Therefore, the initialization of $C$ is modified to only accumulate the distances along the dimension of the sample, which in our case is the column. This subsequence DTW scheme\cite{Müller2007} initializes the cost matrix $C$ as follows:
 \begin{equation}
 \label{cost_init_new}
 \begin{aligned}
@@ -236,7 +238,15 @@ C(1,j) &= D(1,j)\\
 C(i,1) &= \sum_{k=1}^{i} D(k,i)
 \end{aligned}
 \end{equation}
-Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case in normal DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the entire sample starting at every frame of the song. The backtracking paths now satisfy the requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
+Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case for ``standard'' DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the entire sample starting at every frame of the song. The backtracking paths now satisfy the requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{cost.pdf}
+\caption{DTW cost function; minima indicate the end of the sample}
+\label{fig3}
+\end{figure}
 
 \subsubsection{Activation Normalization}
 Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
@@ -250,22 +260,15 @@ H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
 %{\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
 \subsubsection{Pitch Candidate Selection}
-From the set of pitch-shifts, the most likely pitch-shift has to be inferred before feature extraction. For each set of activations corresponding to the different pitch-shifted templates, the DTW cost matrix is computed. The most likely pitch candidate will be the one with the global minimum cost lower than that of all other pitch candidates. All subsequent computations are based on the activation matrix of the selected candidate; the results for all other pitch-shifted templates are discarded.
+From the set of pitch-shifts, the most likely pitch-shift is inferred before feature extraction. We have computed a cost matrix for each pitch-shifted template. The most likely pitch candidate will be the one with the global minimum cost (minimum of the last row of the cost matrix) lower than that of all other pitch candidates. All subsequent computations are based on the activation matrix of the selected candidate; the results for all other pitch-shifted templates are discarded.
 
 \subsection{Feature Extraction}
 The last row of the cost matrix $C$, containing the alignment path costs normalized by the length of the path, will be referred to as \textit{DTW cost function}. Local minima in the DTW cost function indicate potential sample end points.
 %To detect whether a sample is present in a song, DTW costs are computed for alignment paths backtracking from all end frames in the song and normalized by the length of the path. This mapping for every end frame in the song to the DTW cost for the path ending at that frame is called the DTW cost function. Figure \ref{fig3} shows an example of this mapping. Ideally, the end frame where the sample ends will be a local or global minimum in the function.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{cost.pdf}
-\caption{DTW cost function; Minima indicate the end of the sample}
-\label{fig3}
-\end{figure}
-
-Using an absolute threshold on the DTW cost function to detect a sample is not meaningful because a low alignment cost in one song might not be a low cost in another song. The mixing ratio of different samples in different songs will be different. Some might occur in a section with no other sources while others might be heavily overlaid with other sounds, leading to varying strength in activations across different (song, sample) pairs. The DTW backtracking paths from all possible end points to their corresponding start location results in a set of unique start locations in the song for each (song, sample) pair. We refer to this mapping from every end point to a start point in the song as \textit{DTW path start function}. Every unique start location is a candidate for a sample being present. Note that each unique start location can have multiple paths/end points. \figref{fig4} shows one example of this function.
+Using an absolute threshold on the DTW cost function to detect a sample is not meaningful because the absolute cost level depends on both sample and song characteristics. The mixing ratio of different samples in different songs will be different. Some samples might occur in a section with no other sources while others might be heavily overlaid with other sounds, leading to interference and varying strength in activations across different (song, sample) pairs. The DTW backtracking paths from all possible end points to their corresponding start location results in a set of unique start locations in the song for each (song, sample) pair. We refer to this mapping from every end point to a start point in the song as \textit{DTW path start function}. Every unique start location is a candidate for a sample being present. Note that each unique start location can have multiple paths/end points. \figref{fig4} shows one example of this function.
 %{\color{red}would it make sense to add more explanation as to why the designed features make sense?}
-We choose to derive features from the two functions we defined above because we expect that the properties of the DTW alignment paths to vary depending on whether a sample is present or not. The following features are extracted from this data. 
+We choose to derive features from the two functions we defined above because we expect that the properties of the DTW alignment paths vary depending on whether a sample is present or not. The features extracted from this data are explained in the following sections. 
 
 %Another feature obtained from the DTW is the location in the song at which an alignment path starts. Intuitively, given that a sample is present, the DTW backtracking path for end frames in the neighborhood of the exact location where the sample ends would also, after some DTW steps, merge into the optimal alignment path. Therefore, mapping the end points to the start points, we would observe a constant start point value for end points in the neighborhood of the location of the sample. This mapping is called the DTW path start function. Figure \ref{fig4} shows one example of this function. A flat step in this function refers to ending frames that map to the same start point in the song after DTW.
 
@@ -288,7 +291,7 @@ From the multiple path end points of each start location, the following three fe
 %We extract the local minimum of the DTW cost for each end point corresponding to the unique start location. Along with the minimum, we also compute the mean and standard deviation of the cost over the set of points that map to the current step. The costs are normalized by the DTW path length.
 
 \subsubsection{Path-based Features}
-The properties of the DTW alignment path should be meaningful for detecting the presence of the sample.  For example, the tempo of the sample should stay roughly constant, meaning that the slope of the path stays constant as well. Thus, the idealized path is computed by drawing a line from start point to end point. 
+The properties of the DTW alignment path should be meaningful for detecting the presence of the sample.  For example, the tempo of the sample should stay roughly constant, meaning that the slope of the path stays constant as well. Thus, the idealized path is computed by drawing a line from start point to end point. Note that when we refer to end points here, we refer to the group of end points that map to one  unique start location.
 Overall, the following features are extracted for every unique start location: 
 \begin{inparaenum}[(i)]
     \item   the absolute length of the minimum cost path normalized by the sample length,
@@ -302,7 +305,7 @@ Overall, the following features are extracted for every unique start location:
     \item   the standard deviation of the perpendicular deviation from the idealized path across all end point paths, normalized by the length of the path, and
     \item   the number of end points mapping to this unique start location.
 \end{inparaenum}
-Note that when we refer to end points here, we refer to the end points that map to this unique start location.
+
 %After extracting the local minimum DTW cost, we also extract the length and slope of the path for the minimum cost. In addition, we compute the mean deviation of the path's slope from a straight line. In this discretized space, the deviation is computed using euclidean geometry. The final features used are the length, slope and slope deviation of the minimum cost path, mean and standard deviation of path slopes within the step, and mean and standard deviations of all path lengths within the step.
 
 %In addition, we use the length of the step in the DTW path start function corresponding to the current unique start location. This gives us a 11-dimensional feature space.
@@ -347,11 +350,11 @@ A dataset was compiled for this task using data from whosampled.com.\footnote{ww
 80 samples were selected according to the following criteria:
 \begin{inparaenum}[(i)]
     \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequently sampled artists.
-    \item   The result set has a balanced distribution among genres. Samples range from Pop, Rock, Funk, and Hip-Hop genres.
+    \item   The result set has a balanced distribution among genres. Sample genres range from Pop, Rock, Funk, to Hip-Hop.
 	\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
 \end{inparaenum}
 
-    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876.%{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
+    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. %{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
 The overall dataset contains 80 pairs of original song and sampling song.
 
 The following annotations were added manually with the software Sonic Visualizer \cite{SonicVisualiser}:
