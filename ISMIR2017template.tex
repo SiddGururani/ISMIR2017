@@ -192,7 +192,7 @@ In the subsequent analysis, we are only interested in the activations $H_\mathrm
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{correlation.pdf}
-\caption{Geometric mean of correlation functions showing difference between sample presence and absence}
+\caption{Geometric mean of cross-correlation functions showing difference between sample presence and absence}
 \label{fig1}
 \end{figure}
 
@@ -211,7 +211,7 @@ Partially-fixed NMF is then performed individually for each pitch-shift in $P$, 
 %Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. 
 When the sample is time-stretched, the activations from the song will be stretched or compressed accordingly; therefore, cross-correlation cannot be used.
 %
-In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
+In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation distance between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{distmat.pdf}
@@ -415,7 +415,7 @@ The results show that the presented method is somewhat effective at detecting th
 
 A possible reason for the low recall is also that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by classifying all unique start locations as sample instances and calculating the number of false negatives. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths like in \figref{fig2}. %{\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
-The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step or from non-integer pitch shifts. The choice of the distance measure might also impact the results: while the use of the cosine distance makes sense because it emphasizes similarity in a sequence of values, other distance measures might outperform it in this particular use-case.
+The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step or from non-integer pitch shifts. The choice of the distance measure might also impact the results: while the use of the correlation distance makes sense because it emphasizes similarity in a sequence of values, other distance measures might outperform it in this particular use-case.
 
 It is worth to point out that the most problematic cases that we came across were hard to detect for humans as well. These cases included sparse drum loops, very short samples, samples that were very quiet in the mix, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
