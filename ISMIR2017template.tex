@@ -83,7 +83,7 @@ The term `sampling' refers to the usage of snippets or loops from existing songs
 
 Sampling is, in the context of music composition and production, the concept of reusing pre-existing digital recordings in new compositions in a way that it fits in the musical context. In digital sampling, an artist records a segment of a song or sound that they wish to sample, may or may not modify it, and then reuses it (and possibly other samples) by incorporating it into a new composition \cite{katz_capturing_2004}. Sampling of audio has become popular in mainstream pop, hip-hop, and rap music. 
 
-A sample detection system enables a musicological study of the influence of older artists over newer generation artists by observing sampling patterns over the years and geographically.
+A Sample Detection (SD) system enables a musicological study of the influence of older artists over newer generation artists by observing sampling patterns over the years and geographically.
 %It has also gained attention from legal issues in the practice of digital sampling. Section \ref{Motivation} of this paper will discuss the motivation behind research in sample detection. 
 %
 Another possible use case of a sample detection system could be to detect plagiarism or copyright infringement. Sampling is legally controversial and determining fair use is largely left to the courthouse. A system that gives an objective measure of the likelihood of a sample being present in an audio file could add weight to either party's argument in a lawsuit.
@@ -94,7 +94,7 @@ The algorithm discussed in this paper focuses on solving the problem of detectin
 %
 \section{Related Work}
 \label{related}
-The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. {\color{red}I flipped it but it's crossing textwidth}
+The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. %{\color{red}I flipped it but it's crossing textwidth}
 
 %\begin{table*}[!ht]
 %\centering
@@ -108,33 +108,16 @@ The task of sample detection has been addressed in only few previous works. Howe
 %\caption{Comparison Table of Related Work}
 %\end{table*}
 
-\begin{table}[!ht]
-\centering
-\label{comparison}
-\begin{tabular}{|c|c|c|}
-\hline
-                                                                            & \textbf{\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular}}      & \textbf{\begin{tabular}[c]{@{}c@{}}Addition of extra\\ audio tracks\end{tabular}}                   \\ \hline
-\textbf{\begin{tabular}[c]{@{}c@{}}Audio\\ Finger-\\ printing\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Exact audio \\ (degraded)\\ is detected\end{tabular}           & \begin{tabular}[c]{@{}c@{}}Only query \\ audio \\ is present\end{tabular}                           \\ \hline
-\textbf{\begin{tabular}[c]{@{}c@{}}Cover Song\\ Detection\end{tabular}}     & \begin{tabular}[c]{@{}c@{}}Cover is not \\ exactly same audio\\ as reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover contains \\ modifications in\\ structure, instruments\end{tabular} \\ \hline
-\textbf{\begin{tabular}[c]{@{}c@{}}Sample\\ Detection\end{tabular}}         & \begin{tabular}[c]{@{}c@{}}Exact sample \\ is present,\\ possibly modified\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Sample is present \\ in a mixture\\ of audio tracks\end{tabular}         \\ \hline
-\end{tabular}
-\caption{Comparison Table of Related Work}
-\end{table}
 
 \subsection{Audio Fingerprinting}
 
-Audio fingerprinting refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam.\footnote{https://www.shazam.com, last accessed: 4/26/2017}
+Audio Fingerprinting (AFP) refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam.\footnote{https://www.shazam.com, last accessed: 4/26/2017}
 Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
-% The implementation was adapted to this task by: 
-% \begin{enumerate*}
-% \item Enabling the system to handle longer audio queries.
-% \item Optimizing the parameters for landmark matching.
-% \end{enumerate*}
 
 While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
 
 \subsection{Cover Song Detection}
-Cover song detection is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,ravuri2010cover,bertin2011large}.
+Cover Song Detection (CSD) is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,ravuri2010cover,bertin2011large}.
 Covers may, for example, be transposed and may vary in tempo from the original song. Dynamic Time Warping (DTW) \cite{sakoe1978dynamic} is often used to make these systems tempo invariant. The difference to sample detection lies in the fact that covers are renditions of a musical piece, while samples are snippets of audio which are usually a part of the mix overlaid with multiple other instruments and sounds unrelated to the sample.
 %
 The evaluation of both systems, however, can be done in a similar fashion. Both have a test/reference pair which is then categorized as a positive or negative match with or without a confidence measure. Evaluation is done by searching the top-10 detection covers for the ground-truth covers and metrics such as Mean Average Precision, mean rank of first correctly detected cover are computed to compare different cover song detection systems \cite{serracover,serra2007cover}.
@@ -149,6 +132,20 @@ Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspi
 Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They propose to make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song the gives the likelihood of plagiarism.
 %
 While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system. It appears that sample detection as a task in music information retrieval has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
+\begin{table}
+\centering
+\label{comparison}
+%\begin{tabular}{c|c|c}
+\begin{tabular*}{\columnwidth}{l|@{\extracolsep{\fill}}c|c}
+%\hline
+                                                                            & \textbf{\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular}}      & \textbf{\begin{tabular}[c]{@{}c@{}}Addition of extra\\ audio tracks\end{tabular}}                   \\ \hline
+\textbf{AFP} & \begin{tabular}[c]{@{}c@{}}Exact audio \\ (degraded)\\ is detected\end{tabular}           & \begin{tabular}[c]{@{}c@{}}Only query \\ audio \\ is present\end{tabular}                           \\ \hline
+\textbf{CSD}     & \begin{tabular}[c]{@{}c@{}}Cover is not \\ exactly same audio\\ as reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover contains \\ modifications in\\ structure, instruments\end{tabular} \\ \hline
+\textbf{SD}         & \begin{tabular}[c]{@{}c@{}}Exact sample \\ is present,\\ possibly modified\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Sample is present \\ in a mixture\\ of audio tracks\end{tabular}         \\ 
+%\hline
+\end{tabular*}
+\caption{Comparison table Audio Fingerprinting (AFP), Cover Song Detection (CSD) and Sample Detection (SD)}
+\end{table}
 
 
 \section{Method}
@@ -248,7 +245,7 @@ Proper normalization of the activation function is essential for accurate sample
 H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
 \end{equation}
 %
-{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
+%{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
 %Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
 %{\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
@@ -390,7 +387,7 @@ The \textit{Macro}-accuracy measures, on the other hand, report the song-level s
 In summary, using both the Macro and Micro-level accuracy metrics we are able to report the performance of the method in two scenarios: First, detecting whether a sample is present in a song, and second, detecting where in a song and how often a given sample is present.
 
 \section{Results and Discussion}
-The \tabref{results} report the accuracy of our classifier on the test data. %Note that we compute the metrics using the probability threshold for classification as 0.5.
+\tabref{results} reports the accuracy of our classifier on the test data. %Note that we compute the metrics using the probability threshold for classification as 0.5.
 %The \tabref{results} report the training accuracy as well as the testing accuracy for our classifier. For reference:
 %\begin{itemize}
 %\item E1: All $50 \times 10$ sample-song pairs are used to train the classifier.
@@ -399,29 +396,15 @@ The \tabref{results} report the accuracy of our classifier on the test data. %No
 
 \begin{table}[t]
 \centering
-\begin{tabular}{|l|l|l|l|l|} \hline
-      & Precision & Recall  & F-measure & Fp-rate \\ \hline
-Micro & 79.37\%   & 34.60\% & 48.19\%   & 0.04\%  \\ \hline
-Macro & 83.33\%   & 50.00\% & 62.50\%   & 1.11\% 	\\ \hline
-\end{tabular}
+\begin{tabular*}{\columnwidth}{l|@{\extracolsep{\fill}}c|c|c|c}
+%\begin{tabular}{|l|l|l|l|l|} \hline
+      & \textbf{Precision} & \textbf{Recall}  & \textbf{F-measure} & \textbf{Fp-rate} \\ \hline
+\textbf{Micro} & 79.37\%   & 34.60\% & 48.19\%   & 0.04\%  \\ \hline
+\textbf{Macro} & 83.33\%   & 50.00\% & 62.50\%   & 1.11\% 	\\ 
+%\hline
+\end{tabular*}
 \caption{Results for song-level macro accuracy and sample location-level micro accuracy measures}
 \label{results}
-\end{table}
-
-\begin{table}[t]
-\centering
-\label{conf_mat}
-\begin{tabular}{ccc}
-\hline
-\multicolumn{1}{|c|}{\textbf{Micro}} & \multicolumn{1}{c|}{Not Sample} & \multicolumn{1}{c|}{Sample}     \\ \hline
-\multicolumn{1}{|c|}{Not Sample}     & \multicolumn{1}{c|}{74126}      & \multicolumn{1}{c|}{26}         \\ \hline
-\multicolumn{1}{|c|}{Sample}         & \multicolumn{1}{c|}{189}        & \multicolumn{1}{c|}{100}        \\ \hline
-                                     &                                 &                                 \\ \hline
-\multicolumn{1}{|c|}{\textbf{Macro}} & \multicolumn{1}{c|}{No Sample}  & \multicolumn{1}{c|}{Has Sample} \\ \hline
-\multicolumn{1}{|c|}{No Sample}      & \multicolumn{1}{c|}{267}        & \multicolumn{1}{c|}{3}          \\ \hline
-\multicolumn{1}{|c|}{Has Sample}     & \multicolumn{1}{c|}{15}         & \multicolumn{1}{c|}{15}         \\ \hline
-\end{tabular}
-\caption{Confusion Matrices for Micro and Macro Accuracy}
 \end{table}
 
 The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. We observe an area under receiver operating characteristic curve of 72.54\%, but that is because the false positive rate is very low due to the imbalanced classes.%We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
@@ -455,6 +438,22 @@ In the context of plagiarism detection, a high precision enables such a system t
 
 % Another possible explanation for this could be incorrectly annotated pitch-shift factors which will throw off the partially fixed NMF step of the algorithm. Further research needs to be done focusing on these samples to determine what is causing this.
 
+\begin{table}[t]
+\centering
+\label{conf_mat}
+\begin{tabular}{ccc}
+%\hline
+\multicolumn{1}{c|}{\textbf{Micro}} & \multicolumn{1}{c|}{Not Sample} & \multicolumn{1}{c}{Sample}     \\ \hline
+\multicolumn{1}{c|}{Not Sample}     & \multicolumn{1}{c|}{74126}      & \multicolumn{1}{c}{26}         \\ \hline
+\multicolumn{1}{c|}{Sample}         & \multicolumn{1}{c|}{189}        & \multicolumn{1}{c}{100}        \\ %\hline
+                                     &                                 &                                 \\ %\hline
+\multicolumn{1}{c|}{\textbf{Macro}} & \multicolumn{1}{c|}{No Sample}  & \multicolumn{1}{c}{Has Sample} \\ \hline
+\multicolumn{1}{c|}{No Sample}      & \multicolumn{1}{c|}{267}        & \multicolumn{1}{c}{3}          \\ \hline
+\multicolumn{1}{c|}{Has Sample}     & \multicolumn{1}{c|}{15}         & \multicolumn{1}{c}{15}         \\ %\hline
+\end{tabular}
+\caption{Confusion Matrices for Micro and Macro Accuracy}
+\end{table}
+
 \section{Future Work}
 
 The method described in this paper is a promising step towards automatic sample detection, however, further research is required in order to improve the usability of this method. Since the algorithm comprising NMF and DTW works for many cases, a systematic way to go about improving it would be to more closely investigate the problematic cases in order to design modifications and algorithmic extension to reduce the number of false negatives.
@@ -474,7 +473,8 @@ We introduced a method to automatically detect the presence of a sample in a set
 We also present a new publicly available dataset of real-world samples and songs containing fine-grained annotations for exact time locations of sample occurrences within the song. The presented method is evaluated against this dataset and we obtain 79.37\% precision in detecting the exact location of the sample and 83.33\% precision in song-level detection of a given sample. %Some further directions of research have also been suggested which, supported by the new dataset, may be undertaken by the MIR community toward establishing a state-of-the-art in automatic sample detection.
 Sample detection is a challenging MIR task and it is our hope that the dataset and this paper will encourage future work on this topic in the MIR community.
 % For bibtex users:
-{\color{red} Please make all your references consistent. ICASSP, ISMIR, Transactions, etc. should have the same general text. Also read the instructions in the ISMIR template for abbreviations etc in the references} 
+%{\color{red} Please make all your references consistent. ICASSP, ISMIR, Transactions, etc. should have the same general text. Also read the instructions in the ISMIR template for abbreviations etc in the references} 
+\newpage
 \bibliography{ISMIRtemplate}
 
 % For non bibtex users:
