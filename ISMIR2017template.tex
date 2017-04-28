@@ -94,19 +94,32 @@ The algorithm discussed in this paper focuses on solving the problem of detectin
 %
 \section{Related Work}
 \label{related}
-The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. {\color{red}Would it look better to flip the table and put it into one column?}
+The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. {\color{red}I flipped it but it's crossing textwidth}
 
-\begin{table*}[!ht]
+%\begin{table*}[!ht]
+%\centering
+%\label{comparison}
+%\begin{tabular}{|c|c|c|c|}
+%\hline
+%\multicolumn{1}{|l|}{}        & \textbf{Audio Fingerprinting} & \textbf{Cover Song Detection} & \textbf{Sample Detection}\\ \hline
+%\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio (degraded) \\ is detected\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  but possibly modified \end{tabular}                  \\ \hline
+%\begin{tabular}[c]{@{}c@{}}Addition of extra \\ audio tracks\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Only query audio is \\ present\end{tabular}         & \begin{tabular}[c]{@{}c@{}}Cover contains modifications \\  (structural, instrumental, \ldots) \end{tabular} & \begin{tabular}[c]{@{}c@{}}Sample is present in a mixture \\ of many other audio tracks \end{tabular} \\ \hline
+%\end{tabular}
+%\caption{Comparison Table of Related Work}
+%\end{table*}
+
+\begin{table}[!ht]
 \centering
 \label{comparison}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|c|}
 \hline
-\multicolumn{1}{|l|}{}        & \textbf{Audio Fingerprinting} & \textbf{Cover Song Detection} & \textbf{Sample Detection}\\ \hline
-\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Exact audio (degraded) \\ is detected\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover is not exactly the same \\ audio as the reference\end{tabular}                                 & \begin{tabular}[c]{@{}c@{}}Exact sample is present, \\  but possibly modified \end{tabular}                  \\ \hline
-\begin{tabular}[c]{@{}c@{}}Addition of extra \\ audio tracks\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Only query audio is \\ present\end{tabular}         & \begin{tabular}[c]{@{}c@{}}Cover contains modifications \\  (structural, instrumental, \ldots) \end{tabular} & \begin{tabular}[c]{@{}c@{}}Sample is present in a mixture \\ of many other audio tracks \end{tabular} \\ \hline
+                                                                            & \textbf{\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular}}      & \textbf{\begin{tabular}[c]{@{}c@{}}Addition of extra\\ audio tracks\end{tabular}}                   \\ \hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Audio\\ Finger-\\ printing\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Exact audio \\ (degraded)\\ is detected\end{tabular}           & \begin{tabular}[c]{@{}c@{}}Only query \\ audio \\ is present\end{tabular}                           \\ \hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Cover Song\\ Detection\end{tabular}}     & \begin{tabular}[c]{@{}c@{}}Cover is not \\ exactly same audio\\ as reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover contains \\ modifications in\\ structure, instruments\end{tabular} \\ \hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Sample\\ Detection\end{tabular}}         & \begin{tabular}[c]{@{}c@{}}Exact sample \\ is present,\\ possibly modified\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Sample is present \\ in a mixture\\ of audio tracks\end{tabular}         \\ \hline
 \end{tabular}
 \caption{Comparison Table of Related Work}
-\end{table*}
+\end{table}
 
 \subsection{Audio Fingerprinting}
 
@@ -143,8 +156,8 @@ While the authors provide a general outline of a sample detection system, they n
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=\linewidth]{block_diagram.png}
-\caption{Block diagram showing the flow of the algorithm}
+\includegraphics[width=\linewidth]{block_diagram.pdf}
+\caption{High Level Block Diagram}
 \label{fig_block}
 \end{figure}
 
@@ -167,14 +180,20 @@ Different songs will usually require different ranks for accurately approximatin
 
 A possible extension could be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
 
-\subsection{Activation function processing {\color{red}not sure what title works here}
-}
+\subsection{Activation function processing}
 In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ corresponding to the original templates $W_\mathrm{o}$ as they indicate the presence of the sample in the song if they match the pattern in the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ can be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: in the top, the sample occurs twice in the song, while in the sample is not present in the song at the bottom.
+
+%\begin{figure}[t]
+%\centering
+%\includegraphics[width=\linewidth]{corr.png}
+%\caption{Geometric mean of correlation functions for when sample is present twice (above) and sample is absent (below)}
+%\label{fig1}
+%\end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{corr.png}
-\caption{Geometric mean of correlation functions for when sample is present twice (above) and sample is absent (below)}
+\includegraphics[width=\linewidth]{correlation.pdf}
+\caption{Geometric mean of correlation functions showing difference between sample presence and absence}
 \label{fig1}
 \end{figure}
 
@@ -196,7 +215,7 @@ When the sample is time-stretched, the activations from the song will be similar
 In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{distmat.png}
+\includegraphics[width=\linewidth]{distmat.pdf}
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
@@ -229,7 +248,7 @@ Proper normalization of the activation function is essential for accurate sample
 H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
 \end{equation}
 %
-{\color{red}shouldn't there be a p in this equation, too?}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
+{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
 %Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
 %{\color{red}Why would you use $n$ if the number of blocks is $N$. Introduce this variable earlier when you talk about pitch shifts and choose wisely.}
 
@@ -242,7 +261,7 @@ The last row of the cost matrix $C$, containing the alignment path costs normali
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{DTWcost.png}
+\includegraphics[width=\linewidth]{cost.pdf}
 \caption{DTW cost function; Minima indicate the end of the sample}
 \label{fig3}
 \end{figure}
@@ -255,7 +274,7 @@ We choose to derive features from the two functions we defined above because we 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{DTWpath.png}
+\includegraphics[width=\linewidth]{step.pdf}
 \caption{DTW path start function; Longer steps indicate sample}
 \label{fig4}
 \end{figure}
@@ -330,7 +349,7 @@ A dataset was compiled for this task using data from whosampled.com.\footnote{ww
 
 80 samples were selected according to the following criteria:
 \begin{inparaenum}[(i)]
-    \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequwntly sampled artists.
+    \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequently sampled artists.
     \item   The result set has a balanced distribution among genres. Samples range from Pop, Rock, Funk, and Hip-Hop genres.
 	\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
 \end{inparaenum}
@@ -366,12 +385,12 @@ For the test set, any positive detection of the sample within a 1 second toleran
 %The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. 
 We report False Positive Rate, Precision, Recall, and F-measure for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
 
-The \textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same measures False Positive Rate, Precision, Recall, and F-measure are reported, but the sample detection is evaluated per song rather than per sample instance.
+The \textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same measures are reported, but the sample detection is evaluated per song rather than per sample instance.
 %In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures. 
 In summary, using both the Macro and Micro-level accuracy metrics we are able to report the performance of the method in two scenarios: First, detecting whether a sample is present in a song, and second, detecting where in a song and how often a given sample is present.
 
 \section{Results and Discussion}
-The \tabref{results} report the training accuracy as well as the testing accuracy for our classifier. Note that we compute the metrics using the probability threshold for classification as 0.5.
+The \tabref{results} report the accuracy of our classifier on the test data. %Note that we compute the metrics using the probability threshold for classification as 0.5.
 %The \tabref{results} report the training accuracy as well as the testing accuracy for our classifier. For reference:
 %\begin{itemize}
 %\item E1: All $50 \times 10$ sample-song pairs are used to train the classifier.
@@ -391,30 +410,31 @@ Macro & 83.33\%   & 50.00\% & 62.50\%   & 1.11\% 	\\ \hline
 
 \begin{table}[t]
 \centering
-\caption{Confusion Matrices for Micro and Macro Accuracy}
 \label{conf_mat}
 \begin{tabular}{ccc}
 \hline
 \multicolumn{1}{|c|}{\textbf{Micro}} & \multicolumn{1}{c|}{Not Sample} & \multicolumn{1}{c|}{Sample}     \\ \hline
 \multicolumn{1}{|c|}{Not Sample}     & \multicolumn{1}{c|}{74126}      & \multicolumn{1}{c|}{26}         \\ \hline
-\multicolumn{1}{|c|}{Sample}         & \multicolumn{1}{c|}{186}        & \multicolumn{1}{c|}{100}        \\ \hline
+\multicolumn{1}{|c|}{Sample}         & \multicolumn{1}{c|}{189}        & \multicolumn{1}{c|}{100}        \\ \hline
                                      &                                 &                                 \\ \hline
 \multicolumn{1}{|c|}{\textbf{Macro}} & \multicolumn{1}{c|}{No Sample}  & \multicolumn{1}{c|}{Has Sample} \\ \hline
 \multicolumn{1}{|c|}{No Sample}      & \multicolumn{1}{c|}{267}        & \multicolumn{1}{c|}{3}          \\ \hline
 \multicolumn{1}{|c|}{Has Sample}     & \multicolumn{1}{c|}{15}         & \multicolumn{1}{c|}{15}         \\ \hline
 \end{tabular}
+\caption{Confusion Matrices for Micro and Macro Accuracy}
 \end{table}
 
-The results in \tabref{results} show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. %We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
+The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. %We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
 
-Another possible reason for the low recall is that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by setting the probability threshold for classification to 0 {\color{red} What doe you say?}, essentially classifying all instances as a sample instances. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths. {\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
+Another possible reason for the low recall is that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by classifying all unique start locations as sample instances and calculating the number of false negatives. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths like in \figref{fig2}. %{\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
 The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step. The choice of the distance measure might also impact the results: while the use of the cosine distance makes sense because it emphasizes similarity in a sequence of values, other distance measure might outperform it in this particular use-case.
 
 It is worth to point out that the most problematic cases that we came across were particularly hard to detect. These case included sparse drum loops, very short samples, samples that were very quiet in the mix, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
 % \label{dis}
-The high precision of our method, especially in the macro-accuracy use case enables the use of a system like this as a pre-processing step to a manual annotation of sampling instances for studies that trace artist influences. Given a database of songs and a set of samples to look for within the database, this method can be used to pre-label data as cases of sampling with high confidence on songs where samples are detected, allowing the human operator to focus on the remaining database. While this is not ideal, it does cut down on the time taken for manual annotation. {\color{red} Add something about the benefit of high precision in plagiarism detection?}
+The high precision of our method, especially in the macro-accuracy use case enables the use of a system like this as a pre-processing step to a manual annotation of sampling instances for studies that trace artist influences. Given a database of songs and a set of samples to look for within the database, this method can be used to pre-label data as cases of sampling with high confidence on songs where samples are detected, allowing the human operator to focus on the remaining database. While this is not ideal, it does cut down on the time taken for manual annotation.
+In the context of plagiarism detection, a high precision enables such a system to be used with high confidence in case of a positive detection of plagiarism. However, a low recall system favors artists that are sampling and this may not be suitable without human experts being involved.% {\color{red} Add something about the benefit of high precision in plagiarism detection?}
 % While the algorithm discussed here seems simple and effective in solving the problem, there were several interesting nuances in the topic that were overlooked in previous work by Dittmar et al, as well as our initial implementation of the algorithm. This section will discuss some of these in detail.
 
 % \subsection{DTW computation}
@@ -441,7 +461,7 @@ The method described in this paper is a promising step towards automatic sample 
 
 As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While undersampling is a simple approach, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
 
-Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may also help in increasing the sparsity and eventually in improving the differentiation between an instance containing a sample and one that does not.
+Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may help in increasing the sparsity, eventually improving the differentiation between an instance containing a sample and one that does not.
 
 \section{Conclusion}
 
