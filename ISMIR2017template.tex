@@ -111,7 +111,7 @@ The task of sample detection has been addressed in only few previous works. Howe
 
 \subsection{Audio Fingerprinting}
 
-Audio Fingerprinting (AFP) refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam.\footnote{https://www.shazam.com, last accessed: 4/26/2017}
+Audio Fingerprinting (AFP) refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam\footnote{https://www.shazam.com, last accessed: 4/26/2017}.
 Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
 
 While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
@@ -161,7 +161,7 @@ While the authors provide a general outline of a sample detection system, they n
 The algorithm presented in this paper is inspired by the work of Dittmar et al.~\cite{dittmar2012audio}. Since the task of sample detection is similar to a source identification problem where the sample is one of the sources present in the mix, an NMF-based approach is fitting due to its prevalence in audio source separation tasks \cite{schmidt2006nonnegative, ozerov2010multichannel}. The block diagram in \figref{fig_block} shows the processing steps of the algorithm.
 
 \subsection{Non-Negative Matrix Factorization}
-NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{ma2008sorec,koren2009matrix,luo2014efficient} and signal processing tasks, specifically source separation\cite{lee1999learning,smaragdis2014static,virtanen2007monaural}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$:
+NMF is a widely popular algorithm in unsupervised learning with applications in recommendation systems\cite{ma2008sorec,koren2009matrix,luo2014efficient} and signal processing tasks, specifically source separation\cite{lee1999learning,smaragdis2014static,virtanen2007monaural}. NMF factorizes a signal $V \in \mathbb{R}^{M\times N}$ into a template matrix $W \in \mathbb{R}^{M\times K}$ and an activation matrix $H \in \mathbb{R}^{K\times N}$ such that:
 \begin{equation}
     V \approx W\cdot H.
 \end{equation}
