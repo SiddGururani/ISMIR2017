@@ -30,9 +30,9 @@
 % Single address
 % To use with only one author or several with the same address
 % ---------------
-%\oneauthor
-% {Names should be omitted for double-blind reviewing}
-% {Affiliations should be omitted for double-blind reviewing}
+\oneauthor
+ {Siddharth K Gururani, Alexander Lerch}
+ {Georgia Institute of Technology, Center for Music Technology \\ {siddgururani, alexander.lerch}@gatech.edu}
 
 % Two addresses
 % --------------
@@ -46,10 +46,10 @@
 
 % Three addresses
 % --------------
-\threeauthors
-  {First Author} {Affiliation1 \\ {\tt author1@ismir.edu}}
-  {Second Author} {\bf Retain these fake authors in\\\bf submission to preserve the formatting}
-  {Third Author} {Affiliation3 \\ {\tt author3@ismir.edu}}
+%\threeauthors
+%  {First Author} {Affiliation1 \\ {\tt author1@ismir.edu}}
+%  {Second Author} {\bf Retain these fake authors in\\\bf submission to preserve the formatting}
+%  {Third Author} {Affiliation3 \\ {\tt author3@ismir.edu}}
 
 %% To make customize author list in Creative Common license, uncomment and customize the next line
 %  \def\authorname{First Author, Second Author, Third Author}
@@ -75,7 +75,7 @@
 \maketitle
 %
 \begin{abstract}
-The term `sampling' refers to the usage of snippets or loops from existing songs or sample libraries in new songs, mashups, or other music productions. The ability to automatically detect sampling in music is, for instance, beneficial for studies tracking artist influences geographically and temporally. We present a method based on Dynamic Time Warping (DTW) and Non-negative Matrix Factorization (NMF) for the automatic detection of a sample in a set of query songs. The method comprises of two processing steps: first, the DTW alignment path between activations of the query song and reference sample is computed. Second, features are extracted from this path and used to train a Random Forest classifier to detect the presence of the sample. The method is able to identify samples that are pitch-shifted and/or time-stretched. We evaluate this method for sample detection against a new publicly available dataset of real-world sample and song pairs.
+The term `sampling' refers to the usage of snippets or loops from existing songs or sample libraries in new songs, mashups, or other music productions. The ability to automatically detect sampling in music is, for instance, beneficial for studies tracking artist influences geographically and temporally. We present a method based on Dynamic Time Warping (DTW) and Non-negative Matrix Factorization (NMF) for the automatic detection of a sample in a set of query songs. The method comprises of two processing steps: first, the DTW alignment path between activations of the query song and reference sample is computed. Second, features are extracted from this path and used to train a Random Forest classifier to detect the presence of the sample. The method is able to identify samples that are pitch-shifted and/or time-stretched with approximately 63\% f-measure. We evaluate this method against a new publicly available dataset of real-world sample and song pairs.
 \end{abstract}
 %
 \section{Introduction}
@@ -86,7 +86,7 @@ Sampling is, in the context of music composition and production, the concept of 
 A Sample Detection (SD) system enables a musicological study of the influence of older artists over newer generation artists by observing sampling patterns over the years and geographically.
 %It has also gained attention from legal issues in the practice of digital sampling. Section \ref{Motivation} of this paper will discuss the motivation behind research in sample detection. 
 %
-Another possible use case of a sample detection system could be to detect plagiarism or copyright infringement. Sampling is legally controversial and determining fair use is largely left to the courthouse. A system that gives an objective measure of the likelihood of a sample being present in an audio file could add weight to either party's argument in a lawsuit.
+Another possible use case of a SD system could be to detect plagiarism or copyright infringement. Sampling is legally controversial and determining fair use is largely left to the judicial system. A system that gives an objective measure of the likelihood of a sample being present in an audio file could add weight to either party's argument in a lawsuit.
 
 The algorithm discussed in this paper focuses on solving the problem of detecting the presence of a given sample in a set of songs as well as its time location in the song.
 
@@ -94,7 +94,7 @@ The algorithm discussed in this paper focuses on solving the problem of detectin
 %
 \section{Related Work}
 \label{related}
-The task of sample detection has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to sample detection such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. %{\color{red}I flipped it but it's crossing textwidth}
+The task of SD has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to SD such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. %{\color{red}I flipped it but it's crossing textwidth}
 
 %\begin{table*}[!ht]
 %\centering
@@ -112,7 +112,7 @@ The task of sample detection has been addressed in only few previous works. Howe
 \subsection{Audio Fingerprinting}
 
 Audio Fingerprinting (AFP) refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam\footnote{https://www.shazam.com, last accessed: 4/26/2017}.
-Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
+Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting algorithm by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
 
 While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
 
@@ -168,7 +168,7 @@ NMF is a widely popular algorithm in unsupervised learning with applications in 
 If $V$ is the magnitude spectrogram with $M$ frequency bins and $N$ blocks, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
 In a pre-processing step, both the original sample and the query song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
-Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in this query song. 
+Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$, $\mathrm{o}$ indicating 'original'. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in this query song. 
 The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ with $L$ templates that is iteratively learned and represents what we refer to as the mixture templates. The dimension of the complete template matrix is thus $M\times (K+L)$. All activations are iteratively updated as well.
 
 \subsubsection{NMF Rank Selection}
@@ -180,7 +180,7 @@ Different songs will usually require different ranks for accurately approximatin
 Still, a possible extension would be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
 
 \subsection{Activation function processing}
-In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$, which are the activations corresponding to the original templates $W_\mathrm{o}$. These activations indicate the presence of the sample in the song if they match the pattern of the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, multiple cross-correlations between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ could be computed. Peaks in the aggregated (across the $K$ dimensions) overall cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: sample occurs twice in the black song, while the sample is not present in the blue song.
+In the subsequent analysis, we are only interested in the activations $H_\mathrm{s}$ of the song, which are the activations corresponding to the original templates $W_\mathrm{o}$. These activations indicate the presence of the sample in the song if they match the pattern of the original activations $H_\mathrm{o}$. If the sample were neither pitch-shifted nor time-stretched, cross-correlation functions between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ could be computed. Peaks in the aggregated (across the $K$ dimensions) cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: sample occurs twice in the black song, while the sample is not present in the blue song.
 
 %\begin{figure}[t]
 %\centering
@@ -192,7 +192,7 @@ In the subsequent analysis, we are only interested in the activations $H_\mathrm
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{correlation.pdf}
-\caption{Geometric mean of cross-correlation functions showing difference between sample presence and absence}
+\caption{Geometric mean of cross-correlation functions. Black function shows sample occurrence, while blue does not have any samples.}
 \label{fig1}
 \end{figure}
 
@@ -201,7 +201,7 @@ The assumption that the sample is neither time-stretched nor pitch-shifted is no
 
 %Pitch-shifting is a very common effect applied to samples before being used by artists in their own composition. It refers to the process of changing the pitch of the original sample up or down. 
 
-In case of pitch-shifting, the sample templates $W_{\mathrm{o}}$ will no longer be valid templates since the frequency axis of the spectral content will be scaled by the pitch-shift factor. In order to account for pitch-shifting, we construct new spectral templates $W_{\mathrm{o}}^{\mathrm{p}}$ by scaling the frequency axis of the original templates with a set of hypothesized pitch-shift factors. Now, a partially fixed NMF will be able to extract activations corresponding to the pitch-shifted templates and these may be compared to the activations from the original sample. Ideally, we would perform factorizations for a set of hypothesized pitch-shifts usually ranging from one octave lower to one octave higher in semi-tone or quarter-tone steps. For this paper, however, we allow the dataset to inform our pitch-shift steps. The used pitch-shift set in semi-tone steps from the original sample templates $W_\mathrm{o}$ is: 
+In case of pitch-shifting, the original templates $W_{\mathrm{o}}$ will no longer be valid templates since the frequency axis of the spectral content will be scaled by the pitch-shift factor. In order to account for pitch-shifting, we construct new spectral templates $W_{\mathrm{o}}^{\mathrm{p}}$ by scaling the frequency axis of the original templates with a set of hypothesized pitch-shift factors. Now, a partially fixed NMF will be able to extract activations corresponding to the pitch-shifted templates and these may be compared to the activations from the original sample. Ideally, we would perform factorizations for a set of hypothesized pitch-shifts usually ranging from one octave lower to one octave higher in semi-tone or quarter-tone steps. For this paper, however, we allow the dataset to inform our pitch-shift steps. The used pitch-shift set in semi-tone steps from the original sample templates $W_\mathrm{o}$ is: 
 \[ P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}.\]
 %$P = \{p \mid p \in \{-5,-4,-3,-2,-1,0,0.5,1,2,3,4,5\}\}${\color{red}wait, didn't you say you run an NMF per pitch? Is this still true? Also, give details about pitch shifting resolution and range}
 
@@ -218,7 +218,7 @@ In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
-The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig3} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
+The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig2} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
 
 This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_{\mathrm{s}}^{\mathrm{p}}$. %The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one, describe hte last row of the cost matrix etc}
 %In a standard DTW, the cost matrix $C$ is initialized as follows:
@@ -347,14 +347,14 @@ A random forest classifier with an ensemble of 200 decision trees was chosen for
 \subsection{Dataset}
 A dataset was compiled for this task using data from whosampled.com.\footnote{www.whosampled.com, last accessed: 1/22/2017} Whosampled.com is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
 
-80 samples were selected according to the following criteria:
+Eighty samples were selected according to the following criteria:
 \begin{inparaenum}[(i)]
     \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequently sampled artists.
     \item   The result set has a balanced distribution among genres. Sample genres range from Pop, Rock, Funk, to Hip-Hop.
 	\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
 \end{inparaenum}
 
-    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. %{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
+    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples (triggered samples without looping) of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. %{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
 The overall dataset contains 80 pairs of original song and sampling song.
 
 The following annotations were added manually with the software Sonic Visualizer \cite{SonicVisualiser}:
