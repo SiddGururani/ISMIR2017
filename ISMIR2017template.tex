@@ -350,7 +350,7 @@ A random forest classifier with an ensemble of 200 decision trees was chosen for
 \label{eval}
 
 \subsection{Dataset}
-A dataset was compiled for this task using data from whosampled.com.\footnote{www.whosampled.com, last accessed: 1/22/2017} Whosampled.com is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
+A dataset was compiled for this task using data from whosampled.com\footnote{www.whosampled.com, last accessed: 1/22/2017} which aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
 
 %Eighty samples were selected according to the following criteria:
 %\begin{inparaenum}[(i)]
@@ -374,18 +374,18 @@ The following annotations were added manually with the software Sonic Visualizer
 %%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
 %All annotation is done using Sonic Visualizer \cite{SonicVisualiser}. In addition, the pitch-shift factor of the sample in the song are annotated.
 Pitch shift was annotated by a human listener by ear. In cases where the pitch shift was difficult to ascertain, the sample and song snippet was compared in a DAW and different pitch shifts were tested until a match was found.
-These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository. The repository also contains the MATLAB source code for the algorithm. \footnote{www.github.com/placeholder\_repo}
+These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository.\footnote{www.github.com/placeholder\_repo} The repository also contains the MATLAB source code for the algorithm. 
 
 \subsection{Experiments}
 \label{exp}
-For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. In the interest of time, we randomly pick 9 songs from these 79 songs; in combination with the one song that includes the sample. This results in a pool of 10 songs to be paired with each sample, resulting in an overall number of queries: $80\cdot10 = 800$ for the $80$ samples. Performing experiments with the entire dataset would be infeasible without more compute power.
+For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. We randomly pick 9 songs from these 79 songs; in combination with the one song that includes the sample. This results in a pool of 10 songs to be paired with each sample, resulting in an overall number of queries: $80\cdot10 = 800$ for the $80$ samples. Performing experiments with all possible pairs in the entire dataset would be infeasible without more compute power.
 %In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
-
+%
 This overall set is split into a training set of 50 samples/500 queries and a test set of 30 samples/300 queries.
 %To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{disc} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
 
 In order to allow using the ground truth data for training, one additional step of interaction is necessary: all unique start points have to be labeled as `0' or `1' based on whether a sample is present. %In order to achieve this without having to manually tag each unique start point, the ground truth of the time instants of where sample is present are used. 
-More specifically, the start points associated with minimum DTW cost within a 1 second window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance range are merged so that the path with the minimum cost remains. Thus, if multiple positive detections are obtained in the tolerance window, they are grouped as one True Positive. %In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
+More specifically, the start points associated with minimum DTW cost within a 1 second window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance range are merged so that the path with the minimum cost remains. Thus multiple positive detections obtained in the tolerance window are grouped as one True Positive. %In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
 
 For the test set, any positive detection of the sample within a 1 second tolerance window of the ground truth annotation will be regarded as True Positive. Every positive detection outside of this tolerance window and for queries not containing the sample will be regarded as False Positive.
 %For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. 
@@ -418,7 +418,7 @@ In summary, using both the Macro and Micro-level accuracy metrics we are able to
 \label{results}
 \end{table}
 %
-The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. We observe an area under receiver operating characteristic curve of 72.54\%, a result strongly impacted by the low false positive rate due to the imbalanced classes.%We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
+The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a very low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem as depicted in the confusion matrix in \tabref{conf_mat}: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. We observe an area under receiver operating characteristic curve of 72.54\%, a result strongly impacted by the low false positive rate due to the imbalanced classes.%We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
 
 A possible reason for the low recall is also that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by classifying all unique start locations as sample instances and calculating the number of false negatives. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths like in \figref{fig2}. %{\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
@@ -462,7 +462,7 @@ In the context of plagiarism detection, a high precision enables such a system t
 \multicolumn{1}{c|}{No Sample}      & \multicolumn{1}{c|}{267}        & \multicolumn{1}{c}{3}          \\ \hline
 \multicolumn{1}{c|}{Has Sample}     & \multicolumn{1}{c|}{15}         & \multicolumn{1}{c}{15}         \\ %\hline
 \end{tabular}
-\caption{Confusion Matrices for Micro and Macro Accuracy}
+\caption{Confusion Matrices for Micro, Macro Accuracy}
 \end{table}
 
 \section{Future Work}
