@@ -94,7 +94,9 @@ The algorithm discussed in this paper focuses on solving the problem of detectin
 %
 \section{Related Work}
 \label{related}
-The task of SD has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to SD such as cover song detection, audio fingerprinting and remix recognition. \tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. %{\color{red}I flipped it but it's crossing textwidth}
+The task of SD has been addressed in only few previous works. However, there are several parallels that may be drawn from other areas of research that are relevant to SD such as cover song detection, audio fingerprinting and remix recognition. %\tabref{comparison} summarizes the main differences of audio fingerprinting, cover song detection, and sample detection systems. 
+
+%{\color{red}I flipped it but it's crossing textwidth}
 
 %\begin{table*}[!ht]
 %\centering
@@ -112,9 +114,11 @@ The task of SD has been addressed in only few previous works. However, there are
 \subsection{Audio Fingerprinting}
 
 Audio Fingerprinting (AFP) refers to the method of extracting content-based signatures from audio \cite{cano2005review,haitsma2002highly,baluja2007audio}. It is most commonly used in content-based music identification systems like Shazam\footnote{https://www.shazam.com, last accessed: 4/26/2017}.
-Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic}, using a popular fingerprinting algorithm by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
+Van Balen proposed the use audio fingerprinting for sample detection \cite{van2011automatic,van2012automatic}, using a popular fingerprinting algorithm by Wang \cite{wang2003industrial} in an implementation by Ellis \cite{ellisfinger}. 
 
-While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
+%While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
+
+Fingerprinting systems are robust against noise injections, and with appropriate modifications, pitch shifting and time stretching \cite{zhu2010novel} and thus a modified system seems to be a good choice for sample detection.
 
 \subsection{Cover Song Detection}
 Cover Song Detection (CSD) is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,ravuri2010cover,bertin2011large}.
@@ -124,28 +128,29 @@ The evaluation of both systems, however, can be done in a similar fashion. Both 
 
 \subsection{Remix Recognition}
 %Remix recognition aims at identifying... {\color{red}could you double check this whole paragraph? Your description does not seem to be in line with their abstract. Also, if you have only two authors, you can't use et al. --- that would be plural}
-Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute low-level audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients (LFCCs) using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that are not from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. In the context of sample detection, such a system would not work due to the fact that this method relies on long-term similarity between the query and the reference, however, a sample may be short and one-shot.
+Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute low-level audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that are not from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. In the context of sample detection, such a system would not work due to the fact that this method relies on long-term similarity between the query and the reference, however, a sample may be short, one-shot samples (triggered samples without looping).
 %They snip an audio track into 4 second `shingles' and search in a set of similarly snipped test tracks using popular low-level audio features such as MFCCs and pitch-class profiles. In sample detection, such a system wouldn't work because the features would capture information of the whole mix instead of just the sample.
 
 \subsection{Sample detection with Non-negative Matrix Factorization}
 %
-Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They propose to make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song then gives the likelihood of plagiarism.
+Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They propose to make use of Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song then gives the likelihood of plagiarism. While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system.
+In \cite{whitney2013automatic}, Whitney uses NMF in a similar manner except that NMF is done for every pair of texture-windows in the sample and the song. The detection is done using pairwise 2-dimensional cross-correlation of the two activation matrices obtained. To account for pitch-shifting and time-stretching, the audio files are resampled using factors computed by taking the ratio of the sample and song BPM and multiple NMFs are performed. The author leverages parallel computing to speed-up the computationally expensive steps. The issue with this approach is that the time-stretching and pitch-shift factor are not necessarily inverse when sampling.
 %
-While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system. It appears that sample detection as a task in music information retrieval has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
-\begin{table}
-\centering
-\label{comparison}
-%\begin{tabular}{c|c|c}
-\begin{tabular*}{\columnwidth}{l|@{\extracolsep{\fill}}c|c}
-%\hline
-                                                                            & \textbf{\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular}}      & \textbf{\begin{tabular}[c]{@{}c@{}}Addition of extra\\ audio tracks\end{tabular}}                   \\ \hline
-\textbf{AFP} & \begin{tabular}[c]{@{}c@{}}Exact audio \\ (degraded)\\ is detected\end{tabular}           & \begin{tabular}[c]{@{}c@{}}Only query \\ audio \\ is present\end{tabular}                           \\ \hline
-\textbf{CSD}     & \begin{tabular}[c]{@{}c@{}}Cover is not \\ exactly same audio\\ as reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover contains \\ modifications in\\ structure, instruments\end{tabular} \\ \hline
-\textbf{SD}         & \begin{tabular}[c]{@{}c@{}}Exact sample \\ is present,\\ possibly modified\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Sample is present \\ in a mixture\\ of audio tracks\end{tabular}         \\ 
-%\hline
-\end{tabular*}
-\caption{Comparison table Audio Fingerprinting (AFP), Cover Song Detection (CSD) and Sample Detection (SD)}
-\end{table}
+It appears that sample detection as a task in music information retrieval has not yet been well defined in terms of evaluation methodology or metrics. Up to now, datasets related to sampling are non-existent or proprietary.
+%\begin{table}
+%\centering
+%\label{comparison}
+%%\begin{tabular}{c|c|c}
+%\begin{tabular*}{\columnwidth}{l|@{\extracolsep{\fill}}c|c}
+%%\hline
+                                                                            %& \textbf{\begin{tabular}[c]{@{}c@{}}Similarity of query \\ to reference\end{tabular}}      & \textbf{\begin{tabular}[c]{@{}c@{}}Addition of extra\\ audio tracks\end{tabular}}                   \\ \hline
+%\textbf{AFP} & \begin{tabular}[c]{@{}c@{}}Exact audio \\ (degraded)\\ is detected\end{tabular}           & \begin{tabular}[c]{@{}c@{}}Only query \\ audio \\ is present\end{tabular}                           \\ \hline
+%\textbf{CSD}     & \begin{tabular}[c]{@{}c@{}}Cover is not \\ exactly same audio\\ as reference\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cover contains \\ modifications in\\ structure, instruments\end{tabular} \\ \hline
+%\textbf{SD}         & \begin{tabular}[c]{@{}c@{}}Exact sample \\ is present,\\ possibly modified\end{tabular}   & \begin{tabular}[c]{@{}c@{}}Sample is present \\ in a mixture\\ of audio tracks\end{tabular}         \\ 
+%%\hline
+%\end{tabular*}
+%\caption{Comparison table Audio Fingerprinting (AFP), Cover Song Detection (CSD) and Sample Detection (SD)}
+%\end{table}
 
 
 \section{Method}
@@ -175,7 +180,7 @@ The factorization of the query song will then be performed using partially fixed
 \label{nmfrank}
 The rank $K$ of the sample spectrogram has to be chosen based on how many spectral templates need to be used to approximate the specific sample. Similarly, while computing the partially fixed NMF, the rank $L$ for approximating the templates representing the remaining mixture in the song has to be selected in a way that minimizes the impact on the fixed sample template activations in order to robustly detect the sample.
 
-Different songs will usually require different ranks for accurately approximating and factorizing their magnitude spectrograms with a low reconstruction error. In the current algorithm, however, fixed ranks are chosen: $K=10$ and $L=20$. The rationale behind fixed ranks is that for this task a perfect reconstruction is not required and that the following processing steps should be robust enough to detect the sample regardless of whether the templates are able to combine linearly to an accurate reconstruction of  the original spectrogram. If the sample is used in a song, the same fixed templates should produce a roughly similar set of activations regardless of the harmonic rank. 
+Different songs will usually require different ranks for accurately approximating and factorizing their magnitude spectrograms with a low reconstruction error. In the current algorithm, however, fixed ranks are chosen: $K=10$ and $L=20$. The rationale behind fixed low ranks is that for this task a perfect reconstruction is not required and that the following processing steps should be robust enough to detect the sample regardless of whether the templates are able to combine linearly to an accurate reconstruction of  the original spectrogram. If the sample is used in a song, the same fixed templates should produce a roughly similar set of activations regardless of the harmonic rank. Larger fixed ranks were tested but no gain in performance was observed for the increased cost of computation.
 
 Still, a possible extension would be to analyze the audio separately as a pre-processing step to obtain an approximate `complexity' of the audio and adapt the ranks $K$ and $L$ based on the complexity of signals to be modeled. 
 
@@ -211,7 +216,7 @@ Partially-fixed NMF is then performed individually for each pitch-shift in $P$, 
 %Time-stretching is another common effect used in sampling. Artists most often change the speed of the sample in order to match their own song's tempo. 
 When the sample is time-stretched, the activations from the song will be stretched or compressed accordingly; therefore, cross-correlation cannot be used.
 %
-In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation distance between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations.
+In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with the activations $H_{\mathrm{s}}^{\mathrm{p}}$ in the song for each pitch-shift $\mathrm{p}$. A distance matrix $D$ is constructed using the pair-wise correlation distance between the $K$-dimensional activations. The size of $D$ is $N_\mathrm{o}\times N_\mathrm{s}$, where $N_\mathrm{o}$ is the number of frames in the original sample activations and $N_\mathrm{s}$ is the number of frames in the song activations. Correlation is used as the distance measure because it is scale independent. We are interested in how strongly or weakly a set of activations are correlated with each other at each time instant.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{distmat.pdf}
@@ -252,7 +257,7 @@ Initializing in this fashion and proceeding to compute the cost matrix allows us
 Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
 %
 \begin{equation}
-H_{normalized} = \frac{H}{max(H^{k}_{t}: k\in[1,K], \forall N )}.
+H_{normalized} = \frac{H}{\max(H_{t,k}: k\in[1,K], \forall {t} \in N )}.
 \end{equation}
 %
 %{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
@@ -275,7 +280,7 @@ We choose to derive features from the two functions we defined above because we 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{step.pdf}
-\caption{DTW path start function; Longer steps indicate sample}
+\caption{DTW path start function; Longer steps indicate sample; Long steps indicate that several DTW paths backtracked to the same start point.}
 \label{fig4}
 \end{figure}
 
@@ -328,7 +333,7 @@ Overall, the following features are extracted for every unique start location:
 Each unique start location is now represented by an 13-dimensional feature vector, which is a data point that can be used as the input to a binary classifier for detecting whether a sample is present or not.
 %Given the set of features extracted for each unique start location, the task at hand is a simple binary classification. The definition of an instance or a data point $x$ in our case is: Every unique start location in the DTW path start function. The classifier needs to decide whether a sample is present at the location denoted by $x$.
 
-A random forest classifier with an ensemble of 200 decision trees was chosen for this task \cite{breiman2001random}. The number of features chosen for each decision split is 4. The output is a probability of the data point belonging to each class.
+A random forest classifier with an ensemble of 200 decision trees was chosen for this task \cite{breiman2001random}. The number of features chosen for each decision split is 4 and has been decided based on the convention of choosing $round(\sqrt{\mathrm{n}})$ where $\mathrm{n}$ is the number of features, 13. The output is a probability of the data point belonging to each class.
 
 % \begin{algorithm}
 % \begin{enumerate}
@@ -347,14 +352,16 @@ A random forest classifier with an ensemble of 200 decision trees was chosen for
 \subsection{Dataset}
 A dataset was compiled for this task using data from whosampled.com.\footnote{www.whosampled.com, last accessed: 1/22/2017} Whosampled.com is a website that aggregates information about songs that sample or cover other songs. The audio was downloaded using web services from streaming websites such as Youtube or Dailymotion.
 
-Eighty samples were selected according to the following criteria:
-\begin{inparaenum}[(i)]
-    \item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequently sampled artists.
-    \item   The result set has a balanced distribution among genres. Sample genres range from Pop, Rock, Funk, to Hip-Hop.
-	\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
-\end{inparaenum}
+%Eighty samples were selected according to the following criteria:
+%\begin{inparaenum}[(i)]
+    %\item   They are songs by artists with a high number of songs sampled. Artists like James Brown, Stevie Wonder, Michael Jackson, and Queen are frequently sampled artists.
+    %\item   The resulting set has a balanced distribution among genres. Sample genres range from Pop, Rock, Funk, to Hip-Hop.
+	%\item   Sampling songs with high popularity (according to the users of Whosampled) are given preference.
+%\end{inparaenum}
 
-    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples (triggered samples without looping) of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. %{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
+Eighty popular samples (according to the users of Whosampled) were selected from the catalog of songs by popular and frequently sampled artists such as James Brown, Stevie Wonder, Michael Jackson, and Queen. The resulting set has a balanced distribution among Pop, Rock, Funk and Hip-Hop.
+
+    The songs that used these samples are in most cases from the genres Hip-Hop, Pop, and Rap. The samples in this dataset cover several variations of sampling such as: one-shot samples of musical snippets or voice samples, looped drums, and looped melodies. The longest sample is 25 seconds, the shortest is half a second and the average length of the samples is 4.5 seconds. The total number of sampling instances is 876. %{\color{red}add info about pitch shifting and time-stretching. Also, would a plot with a distribution or something like that make sense?}
 The overall dataset contains 80 pairs of original song and sampling song.
 
 The following annotations were added manually with the software Sonic Visualizer \cite{SonicVisualiser}:
@@ -366,12 +373,12 @@ The following annotations were added manually with the software Sonic Visualizer
 %For each original song, the start and end time of the segment that was sampled is manually annotated. In songs that used a sample, all start locations of the sample are annotated.
 %%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
 %All annotation is done using Sonic Visualizer \cite{SonicVisualiser}. In addition, the pitch-shift factor of the sample in the song are annotated.
-
-These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository.\footnote{www.github.com/placeholder\_repo}
+Pitch shift was annotated by a human listener by ear. In cases where the pitch shift was difficult to ascertain, the sample and song snippet was compared in a DAW and different pitch shifts were tested until a match was found.
+These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository. The repository also contains the MATLAB source code for the algorithm. \footnote{www.github.com/placeholder\_repo}
 
 \subsection{Experiments}
 \label{exp}
-For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. We randomly pick 9 songs from these 79 songs; in combination with the one query song that includes the sample. This results in 10 query songs for each sample, resulting in an overall number of query songs of $80\cdot10 = 800$ for the $80$ samples.
+For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. In the interest of time, we randomly pick 9 songs from these 79 songs; in combination with the one query song that includes the sample. This results in 10 query songs for each sample, resulting in an overall number of query songs of $80\cdot10 = 800$ for the $80$ samples. Performing experiments with the entire dataset would be infeasible without more compute power.
 %In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
 
 This overall set is split into a training set of 50 samples/500 queries and a test set of 30 samples/300 queries.
