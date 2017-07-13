@@ -254,11 +254,11 @@ Initializing in this fashion and proceeding to compute the cost matrix allows us
 \end{figure}
 
 \subsubsection{Activation Normalization}
-Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
+Proper normalization of the activation matrix is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one matrix should remain identical, though. Thus, each activation matrix $H$ is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
 %
-\begin{equation}
-H_{normalized} = \frac{H}{\max(H_{t,k}: k\in[1,K], \forall {t} \in N )}.
-\end{equation}
+%\begin{equation}
+$H_{normalized} = \frac{H}{\max(H)}$.
+%\end{equation}
 %
 %{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
 %Note that to account for pitch-shifting, there are $n$ sets of activations, where $n$ is the number of hypothesized pitch-shift factors. This normalization is applied to each of the $n$ sets of activations. 
@@ -374,7 +374,7 @@ The following annotations were added manually with the software Sonic Visualizer
 %%For each annotated sample, in the corresponding song that sampled it, all start locations of the sample are annotated. 
 %All annotation is done using Sonic Visualizer \cite{SonicVisualiser}. In addition, the pitch-shift factor of the sample in the song are annotated.
 Pitch shift was annotated by a human listener by ear. In cases where the pitch shift was difficult to ascertain, the sample and song snippet was compared in a DAW and different pitch shifts were tested until a match was found.
-These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository.\footnote{www.github.com/placeholder\_repo} The repository also contains the MATLAB source code for the algorithm. 
+These annotations plus additional meta-data including the song names, identifiers, and URLs for obtaining the audio have been made available publicly in an online repository.\footnote{https://github.com/SiddGururani/sample\_detection} The repository also contains the MATLAB source code for the algorithm. 
 
 \subsection{Experiments}
 \label{exp}
