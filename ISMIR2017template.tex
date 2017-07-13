@@ -75,7 +75,7 @@
 \maketitle
 %
 \begin{abstract}
-The term `sampling' refers to the usage of snippets or loops from existing songs or sample libraries in new songs, mashups, or other music productions. The ability to automatically detect sampling in music is, for instance, beneficial for studies tracking artist influences geographically and temporally. We present a method based on Dynamic Time Warping (DTW) and Non-negative Matrix Factorization (NMF) for the automatic detection of a sample in a set of query songs. The method comprises of two processing steps: first, the DTW alignment path between activations of the query song and reference sample is computed. Second, features are extracted from this path and used to train a Random Forest classifier to detect the presence of the sample. The method is able to identify samples that are pitch-shifted and/or time-stretched with approximately 63\% f-measure. We evaluate this method against a new publicly available dataset of real-world sample and song pairs.
+The term `sampling' refers to the usage of snippets or loops from existing songs or sample libraries in new songs, mashups, or other music productions. The ability to automatically detect sampling in music is, for instance, beneficial for studies tracking artist influences geographically and temporally. We present a method based on Dynamic Time Warping (DTW) and Non-negative Matrix Factorization (NMF) for the automatic detection of a sample in a pool of songs. The method comprises of two processing steps: first, the DTW alignment path between NMF activations of a song and query sample is computed. Second, features are extracted from this path and used to train a Random Forest classifier to detect the presence of the sample. The method is able to identify samples that are pitch-shifted and/or time-stretched with approximately 63\% f-measure. We evaluate this method against a new publicly available dataset of real-world sample and song pairs.
 \end{abstract}
 %
 \section{Introduction}
@@ -172,9 +172,9 @@ NMF is a widely popular algorithm in unsupervised learning with applications in 
 \end{equation}
 If $V$ is the magnitude spectrogram with $M$ frequency bins and $N$ blocks, $W$ contains the $K$ spectral or harmonic component templates in $V$ while $H$ contains temporal information about each corresponding spectral components in the template matrix \cite{smaragdis2003non}.
 
-In a pre-processing step, both the original sample and the query song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
-Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$, $\mathrm{o}$ indicating 'original'. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in this query song. 
-The factorization of the query song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ with $L$ templates that is iteratively learned and represents what we refer to as the mixture templates. The dimension of the complete template matrix is thus $M\times (K+L)$. All activations are iteratively updated as well.
+In a pre-processing step, both the original sample and the paired song are RMS-normalized, downmixed, and downsampled to \unit[22.05]{kHz}; then, their magnitude spectrogram is computed (block size: 4096, hop size: 1024 samples). %Similarly, we preprocess and compute the magnitude spectrogram of the song, which may or may not contain the sample.
+Using NMF, the sample spectrogram will be factorized into $K$ templates $W_\mathrm{o}$ and the activation matrix $H_\mathrm{o}$, $\mathrm{o}$ indicating 'original'. A sample, used in a song, may be thought of as one source in a mixture of multiple sources in this song. 
+The factorization of the song will then be performed using partially fixed NMF \cite{wu_drum_2015,wu2015drum}. In this case, the template matrix $W$ consists of a fixed, not updated, part containing the extracted templates $W_\mathrm{o}$ and a randomly initialized part $W_\mathrm{m}$ with $L$ templates that is iteratively learned and represents what we refer to as the mixture templates. The dimension of the complete template matrix is thus $M\times (K+L)$. All activations are iteratively updated as well.
 
 \subsubsection{NMF Rank Selection}
 \label{nmfrank}
@@ -223,7 +223,7 @@ In such a scenario, DTW can be used to align the activations $H_\mathrm{o}$ with
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
-The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in the query song. \figref{fig2} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
+The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in a song. \figref{fig2} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
 
 This problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_{\mathrm{s}}^{\mathrm{p}}$. %The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one, describe hte last row of the cost matrix etc}
 %In a standard DTW, the cost matrix $C$ is initialized as follows:
@@ -254,7 +254,7 @@ Initializing in this fashion and proceeding to compute the cost matrix allows us
 \end{figure}
 
 \subsubsection{Activation Normalization}
-Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the query song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
+Proper normalization of the activation function is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one set should remain identical, though. Thus, each set of activations is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
 %
 \begin{equation}
 H_{normalized} = \frac{H}{\max(H_{t,k}: k\in[1,K], \forall {t} \in N )}.
@@ -378,7 +378,7 @@ These annotations plus additional meta-data including the song names, identifier
 
 \subsection{Experiments}
 \label{exp}
-For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. In the interest of time, we randomly pick 9 songs from these 79 songs; in combination with the one query song that includes the sample. This results in 10 query songs for each sample, resulting in an overall number of query songs of $80\cdot10 = 800$ for the $80$ samples. Performing experiments with the entire dataset would be infeasible without more compute power.
+For each of the 80 samples in our dataset, there are 79 songs in which the sample does not occur. In the interest of time, we randomly pick 9 songs from these 79 songs; in combination with the one song that includes the sample. This results in a pool of 10 songs to be paired with each sample, resulting in an overall number of queries: $80\cdot10 = 800$ for the $80$ samples. Performing experiments with the entire dataset would be infeasible without more compute power.
 %In our experiments, we chose 10 songs for each of the samples in our dataset to detect sampling. Of the 10, the sample is only present in one song and the remaining 9 songs are randomly sampled from the set of songs that don't contain the sample. This gives us $80\times10 = 800$ sample-song pairs.
 
 This overall set is split into a training set of 50 samples/500 queries and a test set of 30 samples/300 queries.
