@@ -140,7 +140,7 @@ In \cite{whitney2013automatic}, Whitney uses NMF in a similar manner except that
 The issue with this approach is that the time-stretching and pitch-shift factor are not necessarily inverse when sampling. %{\textcolor{red}{see above}}
 Nonetheless, NMF appears to be a good choice for a SD system as fixed templates allow to obtain activations for only the common components between the song and the sample.
 
-The task of sample detection has been identified in the  in music information retrieval literature, and various approaches have been proposed. However, it has not yet been well defined in terms of evaluation methodology or metrics. Reasonably sized datasets are also non-existent or proprietary. Therefore, there is no formal evaluation that can be performed to compare different sample detection methods. This paper aims to bridge this gap by providing a dataset and propose a common evaluation framework.%{\textcolor{red}{I can see this conclusion being more elaborate: SD has been identified as a task, various approaches have been proposed, however, datasets, metrics, evaluation methodology, etc. Therefore, there is no formal evaluation etc. This seems to be crucial to me as this is essentially one of the motivations of this paper.}}
+The task of sample detection has been identified in music information retrieval literature, and various approaches have been proposed. However, it has not yet been well defined in terms of evaluation methodology or metrics. Reasonably sized datasets are also non-existent or proprietary. Therefore, there is no formal evaluation that can be performed to compare different sample detection methods. This paper aims to bridge this gap by providing a dataset and propose a common evaluation framework.%{\textcolor{red}{I can see this conclusion being more elaborate: SD has been identified as a task, various approaches have been proposed, however, datasets, metrics, evaluation methodology, etc. Therefore, there is no formal evaluation etc. This seems to be crucial to me as this is essentially one of the motivations of this paper.}}
 %\begin{table}
 %\centering
 %\label{comparison}
@@ -205,6 +205,12 @@ In the subsequent analysis, only the activations $H_\mathrm{s}$ are of interest.
 \label{fig1}
 \end{figure}
 
+\subsubsection{Activation Normalization}%{\textcolor{red}{would this subsection maybe make more sense BEFORE the pitch shifting and time stretching? I was totally reading this as cost normalization because this is what I expected. And the normalization is definitely needed before the distance matrix computation, right?}}
+Proper normalization of the activation matrix is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one matrix, however, should remain identical. Thus, each activation matrix $H$ is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
+%
+%\begin{equation}
+$H_{normalized} = \frac{H}{\max(H)}$.
+
 \subsubsection{Pitch-shifting \& Time-stretching}
 The assumption that the sample is neither time-stretched nor pitch-shifted is not true for the majority of cases. In the dataset used for this study, for example, 57.5\% of samples are pitch-shifted. Pitch-shifting is often required for the sample to match the tonality of the song, and time-stretching is often required to adjust for tempo differences between sample and song.
 
@@ -227,7 +233,7 @@ In such a scenario, DTW can align the activations $H_\mathrm{o}$ with the activa
 \caption{Distance matrix computed between activations in the case where a sample is looped}
 \label{fig2}
 \end{figure}
-The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in a song. \figref{fig2} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. {\textcolor{red}{in the final layout, make sure that each column has not more than one plot.}}
+The distance matrix $D$ and properties of the extracted path can be used to indicate the presence of a sample in a song. \figref{fig2} shows an example of a distance matrix with a looped sample. The low cost parallel blue paths indicate the presence of the sample. 
 
 The problem is now a subsequence search for the sample activations $H_\mathrm{o}$ within the series of activations corresponding to the sample templates in the song, $H_{\mathrm{s}}^{\mathrm{p}}$. %The cost matrix is initialized by accumulating the distance matrix along the direction of sample only. The accumulated cost of alignment is an indicator of whether a sample is present at a particular frame in time or not. {\color{red}what about the multiple nmfs? This has to be made clearer! Also, the explanation is not clear: direction of the sample only etc... rewrite the paragraph in context of the previous one, describe hte last row of the cost matrix etc}
 %In a standard DTW, the cost matrix $C$ is initialized as follows:
@@ -257,11 +263,7 @@ Initializing in this fashion and proceeding to compute the cost matrix allows us
 \label{fig3}
 \end{figure}
 
-\subsubsection{Activation Normalization}{\textcolor{red}{would this subsection maybe make more sense BEFORE the pitch shifting and time stretching? I was totally reading this as cost normalization because this is what I expected. And the normalization is definitely needed before the distance matrix computation, right?}}
-Proper normalization of the activation matrix is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one matrix, however, should remain identical. Thus, each activation matrix $H$ is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
-%
-%\begin{equation}
-$H_{normalized} = \frac{H}{\max(H)}$.
+
 %\end{equation}
 %
 %{\color{red}I have it like this to show the general normalization equation for any activation matrix, because it's applied to all activations, even the sample activation. This is why I have the following sentence.}This normalization is applied to all sets of activations, namely: sample activations $H_\mathrm{o}$ and the song activations $H_{\mathrm{s}}^{\mathrm{p}}$ for each $p \in P$.
@@ -389,13 +391,16 @@ This overall set is split into a training set of 50 samples/500 queries and a te
 %To evaluate the classifier, the first 50 samples from dataset were chosen as the training set. Further, problematic samples were identified where there were no diagonals observed in the distance matrix. These were pruned from the subset. Section \ref{disc} will discuss these problematic samples. Experiments are carried out using both: the full training set and the pruned training set.
 
 In order to allow using the ground truth data for training, one additional step of interaction is necessary: all unique start points have to be labeled as `0' or `1' based on whether a sample is present. %In order to achieve this without having to manually tag each unique start point, the ground truth of the time instants of where sample is present are used. 
-More specifically, the start points associated with minimum DTW cost within a \unit[1]{s} window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance range are merged so that the path with the minimum cost remains. Thus multiple positive detections obtained in the tolerance window are grouped as one True Positive. {\textcolor{red}{wait, the TP means you are referring to the testing right? But this is the paragraph for the training? confused... move it to the next paragraph?}} %In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
+More specifically, the start points associated with minimum DTW cost within a \unit[1]{s} window of the ground truth annotation are labeled `1' and the rest are labeled `0'. Multiple start points within the tolerance range are merged so that the path with the minimum cost remains. 
+%Thus multiple positive detections obtained in the tolerance window are grouped as one True Positive. {\textcolor{red}{wait, the TP means you are referring to the testing right? But this is the paragraph for the training? confused... move it to the next paragraph?}} I was trying to reiterate the point made in the previous sentence. I guess I can remove it.
+
+%In some instances there were multiple start points within the tolerance window. To break these ties, instead of choosing the closest start location, the location that had the minimum cost DTW path was labeled `1' and the rest are labeled `0'. The reason for doing this is that, upon observation, it was found that some of these candidates were false positives with high DTW costs and we would like to train the classifier with less noisy data.
 
 For the test set, any positive detection of the sample within a \unit[1]{s} tolerance window of the ground truth annotation will be regarded as True Positive. Every positive detection outside of this tolerance window and for queries not containing the sample will be regarded as False Positive.
 %For testing, the remaining 30 samples are used. For each of the 300 sample-song pairs, features are extracted and the predictions are obtained for each candidate sample location. For the sample-song pairs that contain the sample, the ground truth annotations are obtained and any positive detection within a 1 second tolerance window is classified as a true positive. 
 %The remaining positive detections are also false positives. For sample-song pairs that don't contain the sample, any positive detections are obviously false positives. 
 
-With respect to the matrics, the False Positive Rate, Precision, Recall, and the  F-measure are reported for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
+With respect to the metrics, the False Positive Rate, Precision, Recall, and the  F-measure are reported for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
 
 The \textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same metrics are reported, but the sample detection is evaluated per song rather than per sample instance.
 %In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures. 
@@ -426,7 +431,7 @@ The results show that the presented method is somewhat effective at detecting th
 
 A possible reason for the low recall is also that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by classifying all unique start locations as sample instances and calculating the number of false negatives. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths like the one shown in \figref{fig2}. %{\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
-The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step or from non-integer pitch shifts. The choice of the distance measure might also impact the results: while the use of the correlation distance makes sense because it emphasizes similarity in a sequence of values {\textcolor{red}{Am I confused here? Why sequence of values? Are you referring to the instruments as values?}}, other distance measures might outperform it in this particular use-case.
+The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step or pitch shifts not considered in our algorithm. The choice of the distance measure might also impact the results: while the use of the correlation distance makes sense because it is scale invariant, custom distance measures might outperform it in this particular use-case.
 
 It is worth to point out that the most problematic cases that we came across were hard to detect for humans as well. These cases included sparse drum loops, very short samples, samples that were mixed at a very low level, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
@@ -469,15 +474,15 @@ In the context of plagiarism detection, a high precision enables such a system t
 \caption{Confusion Matrices for Micro, Macro Accuracy}
 \end{table}
 
-\section{Future Work}
+%\section{Future Work}
+%
+%The method described in this paper is a promising step towards automatic sample detection, however, further research is required in order to improve the usability of this method. Since the algorithm comprising NMF and DTW works for many cases, a systematic way to improve it would be to more closely investigate the problematic cases in order to design modifications and algorithmic extensions to reduce the number of false negatives.
+%
+%As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While undersampling is a simple approach, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
+%
+%Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may help in increasing the sparsity, possibly improving the differentiation between an instance containing a sample and one that does not.
 
-The method described in this paper is a promising step towards automatic sample detection, however, further research is required in order to improve the usability of this method. Since the algorithm comprising NMF and DTW works for many cases, a systematic way to improve it would be to more closely investigate the problematic cases in order to design modifications and algorithmic extensions to reduce the number of false negatives.
-
-As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While undersampling is a simple approach, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
-
-Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may help in increasing the sparsity, possibly improving the differentiation between an instance containing a sample and one that does not.
-
-\section{Conclusion}
+\section{Conclusion and Future Work}
 
 %1. describe the algorithm in short again
 %2. talk about dataset released
@@ -490,6 +495,15 @@ Investigating custom distance measures for the DTW is another possible avenue to
 
 We introduced a method to automatically detect the presence of a sample in a set of songs robust against common sampling modifications such as pitch-shifting and time-stretching. Partially fixed NMF is used to extract sample activations from the song, and DTW is used to align the set of activations obtained from the song and the sample. 
 We also present a new publicly available dataset of real-world samples and songs containing fine-grained annotations for exact time locations of sample occurrences within the song. The presented method is evaluated against this dataset and we obtain 79.37\% precision in detecting the exact location of the sample and 83.33\% precision in song-level detection of a given sample. %Some further directions of research have also been suggested which, supported by the new dataset, may be undertaken by the MIR community toward establishing a state-of-the-art in automatic sample detection.
+% FUTURE WORK BEGIN
+
+The method described in this paper is a promising step towards automatic sample detection, however, further research is required in order to improve the usability of this method. Since the algorithm comprising NMF and DTW works for many cases, a systematic way to improve it would be to more closely investigate the problematic cases in order to design modifications and algorithmic extensions to reduce the number of false negatives.
+
+As this problem is inherently unbalanced, a possible direction is to observe best practices for machine learning on imbalanced datasets. While undersampling is a simple approach, there are other techniques such as algorithmic modifications and cost-sensitive learning that may be employed to solve imbalanced classification problems \cite{lopez2013insight}.
+
+Investigating custom distance measures for the DTW is another possible avenue to explore. Applying a non-linearity to the NMF activations may help in increasing the sparsity, possibly improving the differentiation between an instance containing a sample and one that does not.
+% FUTURE WORK END
+
 Sample detection is an intriguing and challenging, yet largely untouched MIR task and it is our hope that the dataset and this paper will encourage future work on this topic in the MIR community.
 % For bibtex users:
 %{\color{red} Please make all your references consistent. ICASSP, ISMIR, Transactions, etc. should have the same general text. Also read the instructions in the ISMIR template for abbreviations etc in the references} 
