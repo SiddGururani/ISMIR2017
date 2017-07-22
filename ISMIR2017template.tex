@@ -31,7 +31,7 @@
 % To use with only one author or several with the same address
 % ---------------
 \oneauthor
- {Siddharth K Gururani, Alexander Lerch}
+ {Siddharth Gururani, Alexander Lerch}
  {Georgia Institute of Technology, Center for Music Technology \\ \{siddgururani, alexander.lerch\}@gatech.edu}
 
 % Two addresses
@@ -118,7 +118,7 @@ Van Balen proposed the use of AFP for sample detection \cite{van2011automatic,va
 
 %While fingerprinting systems that are robust against attacks such as pitch shifting or time stretching seem to be a good choice for sample detection, a sample is usually only one of many components in a mixture of audio sources. Audio fingerprinting algorithms are designed to detect the exact recording in the presence of noise but cannot perform well when the audio is mixed and masked by other audio signals.
 
-Fingerprinting systems are robust against noise injection and, with appropriate modifications, pitch shifting and time stretching \cite{zhu2010novel}. As long as the level difference between sample and other sources is within the noise level expectations, a modified system could be a good choice for sample detection. Given that a sample might be mixed at a low level, it is questionable if this assumption really holds true for the majority of cases.
+Fingerprinting systems are robust against noise injection and, with appropriate modifications, pitch shifting and time stretching \cite{zhu2010novel}. As long as the level difference between the sample and other sources is within the noise level expectations, a modified system could be a good choice for sample detection. Given that a sample might be mixed at a low level, it is questionable if this assumption really holds true for the majority of cases.
 
 \subsection{Cover Song Detection}
 Cover Song Detection (CSD) is the task of recognizing whether a given reference track has a cover song in a set of test tracks\cite{Ellis2007Cover,ravuri2010cover,bertin2011large}.
@@ -128,14 +128,14 @@ The evaluation of SD systems, however, is similar to that of CSD. Both have a te
 
 \subsection{Remix Recognition}
 %Remix recognition aims at identifying... {\color{red}could you double check this whole paragraph? Your description does not seem to be in line with their abstract. Also, if you have only two authors, you can't use et al. --- that would be plural}
-Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that are not from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. Such a system is not appropriate for SD since this method relies on long-term similarity between the query and the reference, however, a sample may be short, one-shot samples (triggered samples without looping).
+Work done in remix recognition by Casey and Slaney \cite{caseyRemix} draws inspiration from a method for web crawling called `shingling' which utilizes a stream of text position-based features to detect if a document has already been crawled before. In their work, they compute audio features such as pitch-class profiles and Log-Frequency Cepstral Coefficients using 0.1 second frames. They concatenate these feature vectors into 4 second 'shingles' and model the distribution of pair-wise distances between shingles from remixes and shingles that are not from remixes. A nearest neighbor classifier is used to identify which distribution a query 'shingle' belongs to. Such a system is not appropriate for SD since this method relies on long-term similarity between the query and the reference, however, a sample may be a short, one-shot sample (triggered samples without looping).
 A working remix recognition system, however, would be helpful in ways similar to SD in that it helps with tracing influences across artists. In addition, some remixing cases might also involve instances of sampling.
 %They snip an audio track into 4 second `shingles' and search in a set of similarly snipped test tracks using popular low-level audio features such as MFCCs and pitch-class profiles. In sample detection, such a system wouldn't work because the features would capture information of the whole mix instead of just the sample.
 
 
 \subsection{Sample Detection with Non-negative Matrix Factorization}
 %
-Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They utilize Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song then gives the likelihood of plagiarism. While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system.
+Dittmar et al.\ listed sampling as one of three kinds of plagiarism in music \cite{dittmar2012audio}. They utilize Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song then gives the likelihood of plagiarism. While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system.
 In \cite{whitney2013automatic}, Whitney uses NMF in a similar manner except that instead of factorizing entire spectrograms, NMF is applied to short texture windows in the sample and the song. The detection is done using pairwise 2-dimensional cross-correlation of the two activation matrices obtained. To account for pitch shifting and time stretching, the audio files are resampled using factors computed by taking the ratio of the sample and song BPM and multiple NMFs are performed. %The author leverages parallel computing to speed-up the computationally expensive steps. 
 The issue with this approach is that the time stretching and pitch shift factor are not necessarily inverse when sampling. %{\textcolor{red}{see above}}
 Nonetheless, NMF appears to be a good choice for a SD system as fixed templates allow to obtain activations for only the common components between the song and the sample.
@@ -206,7 +206,7 @@ In the subsequent analysis, only the activations $H_\mathrm{s}$ are of interest.
 \end{figure}
 
 \subsubsection{Activation Normalization}%{\textcolor{red}{would this subsection maybe make more sense BEFORE the pitch shifting and time stretching? I was totally reading this as cost normalization because this is what I expected. And the normalization is definitely needed before the distance matrix computation, right?}}
-Proper normalization of the activation matrix is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even its presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one matrix, however, should remain identical. Thus, each activation matrix $H$ is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
+Proper normalization of the activation matrix is essential for accurate sample detection, however, there is no ``correct'' way to do this as the level (or even the presence) of the sample in the paired song is unknown. The relative activation levels between the $K$ templates of one matrix, however, should remain identical. Thus, each activation matrix $H$ is normalized by the absolute maximum across all the $K$ activations across time, preserving the relative activation strengths for the spectral templates of the sample:
 %
 %\begin{equation}
 $H_{normalized} = \frac{H}{\max(H)}$.
@@ -253,7 +253,7 @@ C(1,j) &= D(1,j)\\
 C(i,1) &= \sum_{k=1}^{i} D(k,i)
 \end{aligned}
 \end{equation}
-Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case for ``standard'' DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the entire sample starting at every frame of the song. The backtracking paths now satisfy the requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
+Initializing in this fashion and proceeding to compute the cost matrix allows us to obtain backtracking paths from every index in the last row of $D$ (as opposed to one path from the last element of $D$, which is the case for ``standard'' DTW). The last row of the cost matrix $C$ corresponds to the cost of aligning the sample backtracking from every frame of the song. The backtracking paths now satisfy the requirement of aligning the entire sample with a section in the song. To summarize, every alignment path obtained is the path that aligns the sample activations $H_\mathrm{o}$ backtracking from every frame $f$ in the song activations $H_{\mathrm{s}}^{\mathrm{p}}$. Note that the subsequence DTW is performed for each $p \in P$.
 
 
 \begin{figure}[t]
@@ -336,7 +336,7 @@ Overall, the following features are extracted for every unique start location:
 
 \subsection{Classification}
 \label{class}
-Each unique start location is represented by an 13-dimensional feature vector, which is a data point that can be used as the input to a binary classifier for detecting whether a sample is present or not.
+Each unique start location is represented by a 13-dimensional feature vector, which is a data point that can be used as the input to a binary classifier for detecting whether a sample is present or not.
 %Given the set of features extracted for each unique start location, the task at hand is a simple binary classification. The definition of an instance or a data point $x$ in our case is: Every unique start location in the DTW path start function. The classifier needs to decide whether a sample is present at the location denoted by $x$.
 %
 A random forest classifier with an ensemble of 200 decision trees was chosen \cite{breiman2001random}. The number of features chosen for each decision split is 4 and has been decided based on the convention of choosing $round(\sqrt{\mathrm{n}})$ where $\mathrm{n}$ is the number of features, 13. The output is a probability of the data point belonging to each class.
@@ -403,7 +403,7 @@ For the test set, any positive detection of the sample within a \unit[1]{s} tole
 
 With respect to the metrics, the False Positive Rate, Precision, Recall, and the  F-measure are reported for the sample location detection. We refer to these as \textit{Micro}-accuracy measures as they take into account the sample location and the number of occurrences.
 
-The \textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same metrics are reported, but the sample detection is evaluated per song rather than per sample instance.
+\textit{Macro}-accuracy measures, on the other hand, report the song-level sample detection results and indicate whether a sample is present in a song or not regardless of position and number of occurrences. The same metrics are reported, but the sample detection is evaluated per song rather than per sample instance.
 %In addition to the micro-accuracy measures, we also report the song-level sample detection precision, recall and f-measure for a binary classifier for classifying whether a song contains a given sample or not. We refer to these as macro-accuracy measures. 
 In summary, using both the Macro and Micro-level accuracy metrics we are able to report the performance of the method in two usage scenarios: First, detecting whether a sample is present in a song (Macro), and second, detecting where in a song and how often a given sample is present (Micro).
 
@@ -428,13 +428,13 @@ In summary, using both the Macro and Micro-level accuracy metrics we are able to
 \label{results}
 \end{table}
 %
-The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem as depicted in the confusion matrix in \tabref{conf_mat}: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. We observe an area under receiver operating characteristic curve of 72.54\%, a result strongly impacted by the low false positive rate due to the imbalanced classes.%We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
+The results show that the presented method is somewhat effective at detecting the presence of sampling in a set of songs with a low false-positive rate and a reasonably high precision. The low recall of the method can be attributed to the highly imbalanced nature of the problem as depicted in the confusion matrix in \tabref{conf_mat}: the testing dataset has 289 instances of sampling against around 74,000 instances that are not locations of sampling. The training set is similarly skewed in its distribution of positive and negative classes. We observe an area under receiver operating characteristic curve (AUROC) of 72.54\%, a result strongly impacted by the low false positive rate due to the imbalanced classes.%We observed that recall could be improved by balancing the training data by undersampling the negative class instances but it led to a drastic decrease in the precision and f-measure. 
 
 A possible reason for the low recall is also that the method is not always accurate when it comes to picking candidates. More specifically, it already misses approximately 7\% of sampling instances during the candidate selection stage. This number is computed by classifying all unique start locations as sample instances and calculating the number of false negatives. A closer investigation of some training samples showed that sometimes the DTW cost function did not have a minimum at respective sample locations. In these cases, the distance matrix would not contain clear alignment paths like the one shown in \figref{fig2}. %{\color{red} Visualization for this?} %This could lead to the problematic cases being misclassified as negatives, resulting in a low recall.
 %
 The absence of clear alignment paths might stem from incorrect modeling of the fixed sample templates in the song NMF step or pitch shifts not considered in our algorithm. The choice of the distance measure might also impact the results: while the use of the correlation distance makes sense because it is scale invariant, custom distance measures might outperform it in this particular use-case.
 
-It is worth to point out that most problematic cases that we came across were hard to detect for humans as well. These cases included sparse drum loops, very short samples, samples that were mixed at a very low level, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
+It is worth pointing out that most problematic cases that we came across were hard to detect for humans as well. These cases included sparse drum loops, very short samples, samples that were mixed at a very low level, and samples with excessive use of audio effects applied to them. %As mentioned in Sect.~\ref{exp}, we conducted experiments with and without these problematic cases in the training data. Interestingly, removing these examples from the training data led to a slight decrease in the performance. A possible explanation for the drop in precision after removing these problematic cases could be that some representative negative song-sample pairs were also removed from the training set leading to more false-positives.
 % \section{Discussion}
 % \label{dis}
 The high precision of our method, especially in the macro-accuracy use case, enables utilizing this system as a pre-processing step to a manual detection of sampling instances, e.g., for studies that trace artist influences. Given a database of songs and a set of samples to look for in the database, this method can be used to pre-label data as cases of sampling with high confidence on songs where samples are detected, allowing the human operator to focus on the remaining database. %While this is not ideal, it does cut down on the time taken for manual annotation.
@@ -472,7 +472,7 @@ In the context of plagiarism detection, a high precision enables such a system t
 \multicolumn{1}{c|}{No Sample}      & \multicolumn{1}{c|}{267}        & \multicolumn{1}{c}{3}          \\ \hline
 \multicolumn{1}{c|}{Has Sample}     & \multicolumn{1}{c|}{15}         & \multicolumn{1}{c}{15}         \\ %\hline
 \end{tabular}
-\caption{Confusion Matrices for Micro, Macro Accuracy}
+\caption{Confusion Matrices for Micro \& Macro Accuracy}
 \end{table}
 
 %\section{Future Work}
