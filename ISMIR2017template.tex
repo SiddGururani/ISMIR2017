@@ -133,7 +133,7 @@ A working remix recognition system, however, would be helpful in ways similar to
 %They snip an audio track into 4 second `shingles' and search in a set of similarly snipped test tracks using popular low-level audio features such as MFCCs and pitch-class profiles. In sample detection, such a system wouldn't work because the features would capture information of the whole mix instead of just the sample.
 
 
-\subsection{Sample detection with Non-negative Matrix Factorization}
+\subsection{Sample Detection with Non-negative Matrix Factorization}
 %
 Dittmar et al.\ listed sampling as one or three kinds of plagiarism in music \cite{dittmar2012audio}. They utilize Non-negative Matrix Factorization (NMF) to learn the spectral templates from the sample and detect the presence of these templates in the suspect audio. Correlating the activations from the sample and the song then gives the likelihood of plagiarism. While the authors provide a general outline of a sample detection system, they neither offer a detailed algorithmic description nor a formal evaluation of their proposed system.
 In \cite{whitney2013automatic}, Whitney uses NMF in a similar manner except that instead of factorizing entire spectrograms, NMF is applied to short texture windows in the sample and the song. The detection is done using pairwise 2-dimensional cross-correlation of the two activation matrices obtained. To account for pitch shifting and time stretching, the audio files are resampled using factors computed by taking the ratio of the sample and song BPM and multiple NMFs are performed. %The author leverages parallel computing to speed-up the computationally expensive steps. 
@@ -188,7 +188,7 @@ Different songs will usually require different ranks for accurately approximatin
 
 Still, a future extension might be to analyze the audio separately as a pre-processing step to obtain a `complexity' measure that could be used to adapt the ranks $K$ and $L$ based on the signals to be modeled. 
 
-\subsection{Activation function processing}
+\subsection{Activation Function Processing}
 In the subsequent analysis, only the activations $H_\mathrm{s}$ are of interest. These are the activations corresponding to the original templates $W_\mathrm{o}$ and indicate the presence of the sample in the song if they match the pattern of the original activations $H_\mathrm{o}$. If the sample were neither pitch shifted nor time stretched, cross-correlation functions between each corresponding activation in $H_\mathrm{o}$ and $H_\mathrm{s}$ could be computed. Peaks in the aggregated (across the $K$ dimensions) cross-correlation function would then indicate the presence of the sample. \figref{fig1} shows two example functions after using the geometric mean for aggregation: a sample occurs twice in the black song (as indicated by the two local maxima), while it is not present in the blue song.
 
 %\begin{figure}[t]
@@ -211,7 +211,7 @@ Proper normalization of the activation matrix is essential for accurate sample d
 %\begin{equation}
 $H_{normalized} = \frac{H}{\max(H)}$.
 
-\subsubsection{Pitch shifting \& Time stretching}
+\subsubsection{Pitch Shifting \& Time Stretching}
 The assumption that the sample is neither time stretched nor pitch shifted is false for the majority of cases. In the dataset used for this study, for example, 57.5\% of samples are pitch shifted. Pitch shifting is often required for the sample to match the tonality of the song, and time stretching is often required to adjust for tempo differences between the two.
 
 %Pitch-shifting is a very common effect applied to samples before being used by artists in their own composition. It refers to the process of changing the pitch of the original sample up or down. 
